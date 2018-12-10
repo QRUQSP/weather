@@ -86,8 +86,8 @@ function qruqsp_weather_graphData($ciniki) {
             . ") "
         . "WHERE sensors.id IN (" . ciniki_core_dbQuoteIDs($ciniki, $args['sensor_ids']) . ") "
         . "AND sensors.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-        . "ORDER BY sensors.name, data.sample_date ASC ";
-
+        . "ORDER BY sensors.id, data.sample_date ASC "
+        . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.weather', array(
         array('container'=>'sensors', 'fname'=>'id', 'fields'=>array('id', 'name')),

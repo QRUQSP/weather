@@ -139,7 +139,7 @@ function qruqsp_weather_stationGet($ciniki) {
                 . "FROM qruqsp_weather_sensor_data "
                 . "WHERE sensor_id = data.sensor_id "
                 . ") "
-            . "";
+            . "ORDER BY sensors.name ";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.weather', array(
             array('container'=>'sensors', 'fname'=>'id', 
