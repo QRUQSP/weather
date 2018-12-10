@@ -1,0 +1,50 @@
+#
+# Description
+# -----------
+# This table stores the stations owned or heard via aprs or other methods.
+#
+# Fields
+# ------
+# id:                       The ID assigned to the record.
+# uuid:                     The Universal Unique ID.
+# tnid:                     The Tenant ID the record belongs to.
+#
+# name:                     The name of the station.
+#
+# flags:                    The options for the station.
+#
+#                               0x01 - Roving, Car, Moving Stations **future**
+#                               0x02 - Beacon APRS
+#                               0x04 - 
+#                               0x08 - 
+#
+# latitude:                 The current latitude of the station. Historical latitude is attached to sensor data.
+# longitude:                The current longitude of the station.
+# altitude:                 The current altitude of the station.
+#
+# date_added:               The UTC date and time the record was added.
+# last_updated:             The UTC date and time the record was last update.
+#
+create table qruqsp_weather_stations (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+    name varchar(150) not null,
+    flags smallint not null,
+    latitude decimal(11,8) not null,
+    longitude decimal(11,8) not null,
+    altitude decimal(11,8) not null,
+    aprs_celsius_sensor_id int not null,
+    aprs_humidity_sensor_id int not null,
+    aprs_millibars_sensor_id int not null,
+    aprs_wind_kph_sensor_id int not null,
+    aprs_wind_degrees_sensor_id int not null,
+    aprs_rain_mm_sensor_id int not null,
+#    aprs_luminosity_sensor_id int not null,  **future**
+#    aprs_snowfall_sensor_id int not null, **future**
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (uuid),
+    index sync (tnid, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

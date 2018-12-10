@@ -1,0 +1,88 @@
+#
+# Description
+# -----------
+# This table stores the sensors that are part of the station.
+# Sensors are considered the same geographic location as the station latitude/longitude.
+#
+# Fields
+# ------
+# id:                       The ID assigned to the record.
+# uuid:                     The Universal Unique ID.
+# tnid:                     The Tenant ID the record belongs to.
+#
+# station_id:               The ID of the station the sensor belongs to, or zero if unassigned.
+#
+# object:                   The object where the data came from. Typically this will be
+#                           qruqsp.43392.device, qruqsp.i2c.device, qruqsp.aprs.???
+#
+# object_id:                The ID of the object where the data came from.
+#
+# name:                     The name of the sensor.
+#
+# flags:                    The options for the sensor.
+#
+#                               0x01 - Ignore Sensor
+#                               0x02 - 
+#                               0x04 - 
+#                               0x08 - 
+#                               0x10 - 
+#                               0x20 - 
+#                               0x40 - 
+#                               0x80 - 
+#                               0x0100 - 
+#                               0x0200 - 
+#                               0x0400 - 
+#                               0x0800 - 
+#                               0x1000 - 
+#                               0x2000 - 
+#                               0x4000 - 
+#                               0x8000 - 
+#
+# fields:                   The data collected from the sensor.
+#
+#                               0x01 - Temperature (Celcius)
+#                               0x02 - Humidity (%)
+#                               0x04 - Pressure (millibar)
+#                               0x08 - 
+#                               0x10 - Wind Speed (kph)
+#                               0x20 - Wind Direction (degrees)
+#                               0x40 - Rainfall Total 
+#                               0x80 - 
+#                               0x0100 - luminosity (watts per square meter) **future**
+#                               0x0200 - 
+#                               0x0400 - 
+#                               0x0800 - 
+#                               0x1000 - 
+#                               0x2000 - 
+#                               0x4000 - 
+#                               0x8000 - 
+#
+# rain_mm_offset:           When the rain accumulator rolls over, this value is last rain_mm value and
+#                           added to all subsequence rain_mm values stored. This allows the rain_mm
+#                           to continually accumulate with no rollovers in this data set.
+#                           Gaps in readings also allow rain accumlator to continue.
+#
+# rain_mm_last:             The last rain reading, used to keep track of rollovers.
+#
+# date_added:               The UTC date and time the record was added.
+# last_updated:             The UTC date and time the record was last update.
+#
+create table qruqsp_weather_sensors (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+    station_id int not null,
+    object varchar(250) not null,
+    object_id varchar(250) not null,
+    name varchar(150) not null,
+    flags smallint not null,
+    fields smallint not null,
+    rain_mm_offset decimal(9,2) not null,
+    rain_mm_last decimal(9,2) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (uuid),
+#    unique index (object, object_id),
+    index sync (tnid, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

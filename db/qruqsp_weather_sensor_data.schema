@@ -1,0 +1,45 @@
+#
+# Description
+# -----------
+# This table stores the data collected for the sensors. This data is not stored the
+# same as other tables to reduce storage space.
+#
+# **NOTE** This data will require a special sync mechanism.
+#
+# Fields
+# ------
+# tnid:                     The Tenant ID the record belongs to.
+# sensor_id:                The ID of the station the sensor belongs to.
+#
+# sample_date:              The UTC date and time the sample was taken. 
+#
+# latitude:                 The latitude of the sensor at the time of data sample.
+# longitude:                The longitude of the sensor at the time of data sample.
+# altitude:                 The altitude of the sensor, useful for balloon or flying projects.
+#
+# celsius:                  Degrees celsius, eg: 12.34.
+# humidity:                 Percent humidity, eg: 50.00.
+# millibars:                Stored as millibars, eg: 1013.25.
+#
+# wind_kph:                 Speed in kilometers per hour
+# wind_deg:                 Degrees between 0 and 360 with 1 decimal point, eg: 22.5.
+# rain_mm:                  Millimeters accumulated since sensor came online. Enough room for 100 years.
+#
+# date_added:               The UTC date and time the record was added.
+# last_updated:             The UTC date and time the record was last update.
+#
+create table qruqsp_weather_sensor_data (
+    tnid int not null,
+    sensor_id int not null,
+    sample_date datetime not null,
+    latitude decimal(11,8),
+    longitude decimal(11,8),
+    altitude decimal(11,8),
+    celsius decimal(6,2),
+    humidity decimal(5,2),
+    millibars decimal(6,2),
+    wind_kph decimal(6,2),
+    wind_deg decimal(4,1),
+    rain_mm decimal(10,2),
+    unique index (tnid, sensor_id, sample_date)
+) ENGINE='InnoDB', COMMENT='v1.01';
