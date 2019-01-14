@@ -33,6 +33,12 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     }
 
     //
+    // Parse the time in UTC and normalize to current minute.
+    //
+    $dt = new DateTime($args['sample_date'], new DateTimezone('UTC'));
+    $dt->setTime($dt->format('H'), $dt->format('i'), 0);
+
+    //
     // Check for which fields are supplied
     //
     $fields = 0;
@@ -113,6 +119,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
             }
             $update_args['rain_mm_last'] = $args['rain_mm'];
         }
+        $update_args['last_sample_date'] = $dt->format('Y-m-d H:i:s');
         if( count($update_args) > 0 ) {
             $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'qruqsp.weather.sensor', $sensor['id'], $update_args, 0x04);
             if( $rc['stat'] != 'ok' ) {
@@ -132,6 +139,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
             'fields' => $fields,
             'rain_mm_offset' => 0,
             'rain_mm_last' => (isset($args['rain_mm']) ? $args['rain_mm'] : 0),
+            'last_sample_date' => $dt->format('Y-m-d H:i:s'),
             );
 
         //
@@ -192,11 +200,6 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
         $fields_sql2 .= ", '" . ciniki_core_dbQuote($ciniki, ($args['rain_mm'] + $sensor['rain_mm_offset'])) . "' ";
         $update_sql .= ($update_sql != '' ? ', ' : '') . "rain_mm = '" . ciniki_core_dbQuote($ciniki, $args['rain_mm']) . "'";
     }
-    //
-    // Parse the time in UTC and normalize to current minute.
-    //
-    $dt = new DateTime($args['sample_date'], new DateTimezone('UTC'));
-    $dt->setTime($dt->format('H'), $dt->format('i'), 0);
 
     //
     // Add the data
@@ -220,9 +223,6 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
         return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.16', 'msg'=>'Unable to add data sample', 'err'=>$rc['err']));
     }
     
-    print "Weather data received in weather module\n";
-    print_r($args);
-
     return array('stat'=>'ok');
 }
 ?>

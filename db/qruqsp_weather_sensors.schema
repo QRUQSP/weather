@@ -64,6 +64,8 @@
 #
 # rain_mm_last:             The last rain reading, used to keep track of rollovers.
 #
+# last_sample_date:         The last sample date for data in the sensor_data table.
+#
 # date_added:               The UTC date and time the record was added.
 # last_updated:             The UTC date and time the record was last update.
 #
@@ -79,6 +81,7 @@ create table qruqsp_weather_sensors (
     fields smallint not null,
     rain_mm_offset decimal(9,2) not null,
     rain_mm_last decimal(9,2) not null,
+    last_sample_date datetime not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),

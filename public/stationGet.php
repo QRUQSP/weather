@@ -118,6 +118,7 @@ function qruqsp_weather_stationGet($ciniki) {
         //
         $strsql = "SELECT sensors.id, "
             . "sensors.name, "
+            . "sensors.flags, "
             . "sensors.fields, "
 //            . "IFNULL(DATE_FORMAT(data.sample_date, '" . ciniki_core_dbQuote($ciniki, $datetime_format) . "'), '') AS sample_date, "
             . "IFNULL(data.sample_date, '') AS sample_date, "
@@ -130,20 +131,22 @@ function qruqsp_weather_stationGet($ciniki) {
             . "FROM qruqsp_weather_sensors AS sensors "
             . "LEFT JOIN qruqsp_weather_sensor_data AS data ON ("
                 . "sensors.id = data.sensor_id "
+                . "AND sensors.last_sample_date = data.sample_date "
                 . "AND data.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "WHERE sensors.station_id = '" . ciniki_core_dbQuote($ciniki, $args['station_id']) . "' "
             . "AND sensors.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-            . "AND data.sample_date = ("
+/*            . "AND data.sample_date = ("
                 . "SELECT MAX(sample_date) "
                 . "FROM qruqsp_weather_sensor_data "
                 . "WHERE sensor_id = data.sensor_id "
-                . ") "
+                . ") " */
             . "ORDER BY sensors.name ";
+            error_log($strsql);
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.weather', array(
             array('container'=>'sensors', 'fname'=>'id', 
-                'fields'=>array('id', 'name', 'fields', 'sample_date', 
+                'fields'=>array('id', 'name', 'flags', 'fields', 'sample_date', 
                     'celsius', 'humidity', 'millibars', 'wind_kph', 'wind_deg', 'rain_mm'),
                 'utctotz'=>array('sample_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)),
                 ),

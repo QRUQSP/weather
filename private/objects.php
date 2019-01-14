@@ -51,6 +51,8 @@ function qruqsp_weather_objects(&$ciniki) {
             'flags' => array('name'=>'Options', 'default'=>'0'),
             'fields' => array('name'=>'Fields', 'default'=>'0'),
             'rain_mm_offset' => array('name'=>'Rain Offset', 'default'=>'0'),
+            'rain_mm_last' => array('name'=>'Rain mm Last', 'default'=>'0'),
+            'last_sample_date' => array('name'=>'Last Sample Date', 'default'=>''),
             ),
         'history_table' => 'qruqsp_weather_history',
         );
