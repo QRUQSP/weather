@@ -76,6 +76,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
         $update_sql .= ($update_sql != '' ? ', ' : '') . "wind_deg = '" . ciniki_core_dbQuote($ciniki, $args['wind_deg']) . "'";
     }
     if( isset($args['rain_mm']) ) {
+        $args['rain_mm'] = round($args['rain_mm'], 2);
         $fields |= 0x40;
         $fields_sql1 .= ', rain_mm';
     }
@@ -83,7 +84,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     //
     // Check if the sensor exists in the database
     //
-    $strsql = "SELECT id, station_id, name, flags, fields, rain_mm_offset, rain_mm_last "
+    $strsql = "SELECT id, station_id, name, flags, fields, rain_mm_offset, rain_mm_last, last_sample_date "
         . "FROM qruqsp_weather_sensors "
         . "WHERE object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
         . "AND object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
@@ -116,10 +117,13 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
             //
             if( $args['rain_mm'] < $sensor['rain_mm_last'] ) {
                 $update_args['rain_mm_offset'] = $sensor['rain_mm_offset'] + $sensor['rain_mm_last'];
+            } elseif( $args['rain_mm'] > $sensor['rain_mm_last'] ) {
+                $update_args['rain_mm_last'] = $args['rain_mm'];
             }
-            $update_args['rain_mm_last'] = $args['rain_mm'];
         }
-        $update_args['last_sample_date'] = $dt->format('Y-m-d H:i:s');
+        if( $dt->format('Y-m-d H:i:s') != $sensor['last_sample_date'] ) {
+            $update_args['last_sample_date'] = $dt->format('Y-m-d H:i:s');
+        }
         if( count($update_args) > 0 ) {
             $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'qruqsp.weather.sensor', $sensor['id'], $update_args, 0x04);
             if( $rc['stat'] != 'ok' ) {

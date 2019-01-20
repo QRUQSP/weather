@@ -305,8 +305,8 @@ function qruqsp_weather_main() {
             'name':{'label':'Name', 'required':'yes', 'type':'text'},
 //            'flags':{'label':'Options', 'type':'text'},
 //            'fields':{'label':'Fields', 'type':'text'},
-            'rain_mm_offset':{'label':'Rain Offset', 'type':'text'},
-            'rain_mm_offset':{'label':'Rain Offset', 'type':'text'},
+//            'rain_mm_offset':{'label':'Rain Offset', 'type':'text'},
+//            'rain_mm_last':{'label':'Rain Last Reading', 'type':'text'},
             }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.qruqsp_weather_main.sensor.save();'},
