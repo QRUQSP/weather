@@ -1,0 +1,6 @@
+#
+# Alter table to change name of aprs_wind_degrees_id
+#
+ALTER TABLE qruqsp_weather_stations CHANGE COLUMN aprs_wind_degrees_sensor_id aprs_wind_deg_sensor_id int not null;
+ALTER TABLE qruqsp_weather_stations ADD COLUMN aprs_last_beacon datetime not null AFTER aprs_rain_mm_sensor_id;
+ALTER TABLE qruqsp_weather_stations COMMENT='v1.02';

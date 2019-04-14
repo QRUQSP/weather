@@ -32,8 +32,9 @@ function qruqsp_weather_objects(&$ciniki) {
             'aprs_humidity_sensor_id' => array('name'=>'APRS Humidity Sensor', 'ref'=>'qruqsp.weather.sensor', 'default'=>'0'),
             'aprs_millibars_sensor_id' => array('name'=>'APRS Barometer Sensor', 'ref'=>'qruqsp.weather.sensor', 'default'=>'0'),
             'aprs_wind_kph_sensor_id' => array('name'=>'APRS Wind Speed Sensor', 'ref'=>'qruqsp.weather.sensor', 'default'=>'0'),
-            'aprs_wind_degrees_sensor_id' => array('name'=>'APRS Wind Direction Sensor', 'ref'=>'qruqsp.weather.sensor', 'default'=>'0'),
+            'aprs_wind_deg_sensor_id' => array('name'=>'APRS Wind Direction Sensor', 'ref'=>'qruqsp.weather.sensor', 'default'=>'0'),
             'aprs_rain_mm_sensor_id' => array('name'=>'APRS Rainfall Sensor', 'ref'=>'qruqsp.weather.sensor', 'default'=>'0'),
+            'aprs_last_beacon' => array('name'=>'APRS Last Beacon', 'default'=>''),
             ),
         'history_table' => 'qruqsp_weather_history',
         );

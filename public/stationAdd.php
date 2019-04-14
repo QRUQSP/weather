@@ -29,7 +29,7 @@ function qruqsp_weather_stationAdd(&$ciniki) {
         'aprs_humidity_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'APRS Humidity Sensor'),
         'aprs_millibars_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'APRS Barometer Sensor'),
         'aprs_wind_kph_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'APRS Wind Speed Sensor'),
-        'aprs_wind_degrees_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'APRS Wind Direction Sensor'),
+        'aprs_wind_deg_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'APRS Wind Direction Sensor'),
         'aprs_rain_mm_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'APRS Rainfall Sensor'),
         ));
     if( $rc['stat'] != 'ok' ) {

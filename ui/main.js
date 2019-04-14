@@ -185,7 +185,16 @@ function qruqsp_weather_main() {
             p.show(cb);
         });
     }
+    this.station.beacon = function() {
+        M.api.getJSONCb('qruqsp.weather.stationBeacon', {'tnid':M.curTenantID, 'station_id':this.station_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+        });
+    }
     this.station.addButton('edit', 'Edit', 'M.qruqsp_weather_main.editstation.open(\'M.qruqsp_weather_main.station.open();\',M.qruqsp_weather_main.station.station_id);');
+    this.station.addButton('beacon', 'Beacon', 'M.qruqsp_weather_main.station.beacon();');
     this.station.addClose('Back');
 
     //
@@ -203,6 +212,14 @@ function qruqsp_weather_main() {
             'longitude':{'label':'Longitude', 'type':'text'},
             'altitude':{'label':'Altitude', 'type':'text'},
         }},
+        'aprs_sensors':{'label':'APRS Beacon', 'fields':{
+            'aprs_celsius_sensor_id':{'label':'Temperature', 'type':'select', 'options':{}},
+            'aprs_humidity_sensor_id':{'label':'Humidity', 'type':'select', 'options':{}},
+            'aprs_millibars_sensor_id':{'label':'Pressure', 'type':'select', 'options':{}},
+            'aprs_wind_kph_sensor_id':{'label':'Wind Speed', 'type':'select', 'options':{}},
+            'aprs_wind_deg_sensor_id':{'label':'Wind Direction', 'type':'select', 'options':{}},
+            'aprs_rain_mm_sensor_id':{'label':'Rainfall', 'type':'select', 'options':{}},
+            }},
 /*        'aprs':{'label':'APRS', 'fields':{
             'aprs_celsius_sensor_id':{'label':'APRS Celsius Sensor', 'type':'select', 'options':{}},
             'aprs_humidity_sensor_id':{'label':'APRS Celsius Sensor', 'type':'select', 'options':{}},
@@ -232,6 +249,22 @@ function qruqsp_weather_main() {
             }
             var p = M.qruqsp_weather_main.editstation;
             p.data = rsp.station;
+            p.sections.aprs_sensors.fields.aprs_celsius_sensor_id.options = {'0':'None'};
+            p.sections.aprs_sensors.fields.aprs_humidity_sensor_id.options = {'0':'None'};
+            p.sections.aprs_sensors.fields.aprs_millibars_sensor_id.options = {'0':'None'};
+            p.sections.aprs_sensors.fields.aprs_wind_kph_sensor_id.options = {'0':'None'};
+            p.sections.aprs_sensors.fields.aprs_wind_deg_sensor_id.options = {'0':'None'};
+            p.sections.aprs_sensors.fields.aprs_rain_mm_sensor_id.options = {'0':'None'};
+            if( rsp.station.sensors != null ) {
+                for(var i in rsp.station.sensors) {
+                    if( (rsp.station.sensors[i].fields&0x01) == 0x01 ) {
+                        p.sections.aprs_sensors.fields.aprs_celsius_sensor_id.options[rsp.station.sensors[i].id] = rsp.station.sensors[i].name;
+                    }
+                    if( (rsp.station.sensors[i].fields&0x02) == 0x02 ) {
+                        p.sections.aprs_sensors.fields.aprs_humidity_sensor_id.options[rsp.station.sensors[i].id] = rsp.station.sensors[i].name;
+                    }
+                }
+            }
             p.refresh();
             p.show(cb);
         });

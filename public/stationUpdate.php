@@ -23,11 +23,11 @@ function qruqsp_weather_stationUpdate(&$ciniki) {
         'longitude'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Longitude'),
         'altitude'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Altitude'),
         'aprs_celsius_sensor_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'APRS Celsius Sensor'),
-        'aprs_humidity_sensor_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'APRS Celsius Sensor'),
-        'aprs_millibars_sensor_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'APRS Celsius Sensor'),
-        'aprs_wind_kph_sensor_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'APRS Celsius Sensor'),
-        'aprs_wind_degrees_sensor_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'APRS Celsius Sensor'),
-        'aprs_rain_mm_sensor_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'APRS Celsius Sensor'),
+        'aprs_humidity_sensor_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'APRS Humidity Sensor'),
+        'aprs_millibars_sensor_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'APRS Millibars Sensor'),
+        'aprs_wind_kph_sensor_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'APRS Wind Speed Sensor'),
+        'aprs_wind_deg_sensor_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'APRS Wind Direction Sensor'),
+        'aprs_rain_mm_sensor_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'APRS Rainfall Sensor'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;

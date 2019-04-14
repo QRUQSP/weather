@@ -52,7 +52,7 @@ function qruqsp_weather_stationSearch($ciniki) {
         . "qruqsp_weather_stations.aprs_humidity_sensor_id, "
         . "qruqsp_weather_stations.aprs_millibars_sensor_id, "
         . "qruqsp_weather_stations.aprs_wind_kph_sensor_id, "
-        . "qruqsp_weather_stations.aprs_wind_degrees_sensor_id, "
+        . "qruqsp_weather_stations.aprs_wind_deg_sensor_id, "
         . "qruqsp_weather_stations.aprs_rain_mm_sensor_id "
         . "FROM qruqsp_weather_stations "
         . "WHERE qruqsp_weather_stations.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
@@ -69,7 +69,7 @@ function qruqsp_weather_stationSearch($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.weather', array(
         array('container'=>'stations', 'fname'=>'id', 
-            'fields'=>array('id', 'name', 'flags', 'latitude', 'longitude', 'altitude', 'aprs_celsius_sensor_id', 'aprs_humidity_sensor_id', 'aprs_millibars_sensor_id', 'aprs_wind_kph_sensor_id', 'aprs_wind_degrees_sensor_id', 'aprs_rain_mm_sensor_id')),
+            'fields'=>array('id', 'name', 'flags', 'latitude', 'longitude', 'altitude', 'aprs_celsius_sensor_id', 'aprs_humidity_sensor_id', 'aprs_millibars_sensor_id', 'aprs_wind_kph_sensor_id', 'aprs_wind_deg_sensor_id', 'aprs_rain_mm_sensor_id')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
