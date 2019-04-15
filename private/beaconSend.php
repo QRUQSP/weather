@@ -33,6 +33,7 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
         . "stations.aprs_wind_deg_sensor_id, "
         . "stations.aprs_rain_mm_sensor_id, "
         . "IFNULL(stations.aprs_last_beacon, '') AS aprs_last_beacon, "
+        . "IFNULL(stations.aprs_frequency, '') AS aprs_frequency, "
         . "sensors.id AS sensor_id, "
         . "sensors.name AS sensor_name, "
         . "sensors.fields AS sensor_fields, "
@@ -68,7 +69,7 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
         array('container'=>'stations', 'fname'=>'id', 
             'fields'=>array('id', 'name', 'flags', 'latitude', 'longitude', 'altitude', 'aprs_celsius_sensor_id', 
                 'aprs_humidity_sensor_id', 'aprs_millibars_sensor_id', 'aprs_wind_kph_sensor_id', 
-                'aprs_wind_deg_sensor_id', 'aprs_rain_mm_sensor_id', 'aprs_last_beacon')),
+                'aprs_wind_deg_sensor_id', 'aprs_rain_mm_sensor_id', 'aprs_last_beacon', 'aprs_frequency')),
         array('container'=>'sensors', 'fname'=>'sensor_id',
             'fields'=>array('id'=>'sensor_id', 'name'=>'sensor_name', 'fields'=>'sensor_fields', 
                 'sample_date', 'celsius', 'humidity', 'millibars', 'wind_kph', 'wind_deg', 'rain_mm'),
@@ -86,9 +87,9 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
     // Check the date of last beacon
     //
     $last_dt = new DateTime($station['aprs_last_beacon'], new DateTimezone('UTC'));
-    $last_dt->add(new DateInterval('PT5M'));
+    $last_dt->add(new DateInterval('PT' . $station['aprs_frequency'] . 'M'));
     if( $last_dt > $dt ) {
-        error_log('beaconed within last 5 minutes');
+        error_log('beaconed within last ' . $station['aprs_frequency'] . ' minutes');
     }
 
     //
@@ -109,7 +110,7 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
     // Check for sensors configured
     //
     if( !isset($station['sensors']) || count($station['sensors']) < 1 ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.23', 'msg'=>'No APRS sensors found'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.39', 'msg'=>'No APRS sensors found'));
     }
 
     //
@@ -233,6 +234,16 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
         return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.18', 'msg'=>'Error sending message', 'err'=>$rc['err']));
     }
 
+    //
+    // Update the database with aprs_last_beacon time
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+    $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'qruqsp.weather.station', $station['id'], array(
+        'aprs_last_beacon'=>$dt->format('Y-m-d H:i:s')), 0x04);
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.33', 'msg'=>'Unable to update the station'));
+    }
+    
     return array('stat'=>'ok');
 }
 ?>

@@ -178,6 +178,8 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
                 }
                 $sensor['station_id'] = $rc['id'];
             }
+        } else {
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.34', 'msg'=>'No station specified'));
         }
 
         //
@@ -226,7 +228,39 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     if( $rc['stat'] != 'ok' && $rc['stat'] != 'exists' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.16', 'msg'=>'Unable to add data sample', 'err'=>$rc['err']));
     }
-    
+
+    //
+    // Check if station should be beaconed
+    //
+    $strsql = "SELECT flags, "
+        . "IFNULL(TIMESTAMPDIFF(SECOND, aprs_last_beacon, UTC_TIMESTAMP()), 0) AS last_beacon_age, "
+        . "aprs_frequency "
+        . "FROM qruqsp_weather_stations "
+        . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $sensor['station_id']) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'qruqsp.weather', 'station');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.40', 'msg'=>'Unable to load station', 'err'=>$rc['err']));
+    }
+    $station = $rc['station'];
+  
+    //
+    // Make sure beaconing is turned on, and enough time since last beacon
+    // Apply a random number of seconds to the aprs_frequency to make sure beacon
+    // are not always sent at the same seconds offset.
+    //
+    if( ($station['flags']&0x02) == 0x02 
+        && $station['last_beacon_age'] > (($station['aprs_frequency'] * 60) + RAND(5,55))
+        && $station['aprs_frequency'] > 0
+        ) {
+        ciniki_core_loadMethod($ciniki, 'qruqsp', 'weather', 'private', 'beaconSend');
+        $rc = qruqsp_weather_beaconSend($ciniki, $tnid, $sensor['station_id']); 
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.41', 'msg'=>'Unable to send aprs beacon', 'err'=>$rc['err']));
+        }
+    }
+
     return array('stat'=>'ok');
 }
 ?>

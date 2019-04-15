@@ -213,6 +213,8 @@ function qruqsp_weather_main() {
             'altitude':{'label':'Altitude', 'type':'text'},
         }},
         'aprs_sensors':{'label':'APRS Beacon', 'fields':{
+            'flags2':{'label':'Beacon', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x02},
+            'aprs_frequency':{'label':'Frequency (min)', 'type':'toggle', 'toggles':{'1':'1', '5':'5', '15':'15', '30':'30', '45':'45', '60':'60'}},
             'aprs_celsius_sensor_id':{'label':'Temperature', 'type':'select', 'options':{}},
             'aprs_humidity_sensor_id':{'label':'Humidity', 'type':'select', 'options':{}},
             'aprs_millibars_sensor_id':{'label':'Pressure', 'type':'select', 'options':{}},

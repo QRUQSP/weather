@@ -35,6 +35,7 @@ function qruqsp_weather_objects(&$ciniki) {
             'aprs_wind_deg_sensor_id' => array('name'=>'APRS Wind Direction Sensor', 'ref'=>'qruqsp.weather.sensor', 'default'=>'0'),
             'aprs_rain_mm_sensor_id' => array('name'=>'APRS Rainfall Sensor', 'ref'=>'qruqsp.weather.sensor', 'default'=>'0'),
             'aprs_last_beacon' => array('name'=>'APRS Last Beacon', 'default'=>''),
+            'aprs_frequency' => array('name'=>'APRS Beacon Frequency', 'default'=>'30'),
             ),
         'history_table' => 'qruqsp_weather_history',
         );

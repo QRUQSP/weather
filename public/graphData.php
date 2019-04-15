@@ -94,7 +94,7 @@ function qruqsp_weather_graphData($ciniki) {
         array('container'=>'data', 'fname'=>'date', 'fields'=>array('date', 'value')),
         ));
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.23', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.38', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
     }
     $sensors = isset($rc['sensors']) ? $rc['sensors'] : array();
     $min = 0;
