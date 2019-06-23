@@ -66,6 +66,7 @@ function qruqsp_weather_main() {
     this.station = new M.panel('Station', 'qruqsp_weather_main', 'station', 'mc', 'large narrowaside', 'sectioned', 'qruqsp.weather.main.station');
     this.station.data = null;
     this.station.station_id = 0;
+    this.station.refreshTimer = null;
     this.station.graphData = function(s) {
         M.api.getJSONBgCb('qruqsp.weather.graphData', {'tnid':M.curTenantID, 'sensor_ids':M.qruqsp_weather_main.station.sections[s].sensor_ids.join(','), 'graph':s}, function(rsp) {
             if( rsp.stat != 'ok' ) {
@@ -123,6 +124,14 @@ function qruqsp_weather_main() {
             'loadData':'yes',
             'dataFn':this.station.graphData,
             },
+        'windspeed':{'label':'Wind Speed (km)', 'type':'metricsgraphics', 
+            'visible':function() { return M.qruqsp_weather_main.station.sections.windspeed.sensor_ids.length > 0 ? 'yes' : 'no'},
+            'graphtype':'multiline',
+            'missing_is_hidden': true,
+            'legend':[],
+            'loadData':'yes',
+            'dataFn':this.station.graphData,
+            },
     }
     this.station.cellValue = function(s, i, j, d) {
         if( s == 'details' ) {
@@ -167,6 +176,60 @@ function qruqsp_weather_main() {
             p.sections.pressure.legend = [];
             p.sections.pressure.sensor_ids = [];
             p.sections.pressure.dataLoaded = 'no';
+            p.sections.windspeed.legend = [];
+            p.sections.windspeed.sensor_ids = [];
+            p.sections.windspeed.dataLoaded = 'no';
+            for(var i in rsp.station.sensors) {
+                if( (rsp.station.sensors[i].flags&0x01) == 0x01 ) {
+                    continue;
+                }
+                if( (rsp.station.sensors[i].fields&0x01) == 0x01 ) {
+                    p.sections.temperature.sensor_ids.push(rsp.station.sensors[i].id);
+                }
+                if( (rsp.station.sensors[i].fields&0x02) == 0x02 ) {
+                    p.sections.humidity.sensor_ids.push(rsp.station.sensors[i].id);
+                }
+                if( (rsp.station.sensors[i].fields&0x04) == 0x04 ) {
+                    p.sections.pressure.sensor_ids.push(rsp.station.sensors[i].id);
+                }
+                if( (rsp.station.sensors[i].fields&0x10) == 0x10 ) {
+                    p.sections.windspeed.sensor_ids.push(rsp.station.sensors[i].id);
+                }
+            }
+            p.refresh();
+            p.show(cb);
+            p.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 10000);
+        });
+    }
+    this.station.beacon = function() {
+        M.api.getJSONCb('qruqsp.weather.stationBeacon', {'tnid':M.curTenantID, 'station_id':this.station_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+        });
+    }
+    this.station.autoUpdate = function() {
+        this.update();
+        this.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 10000);
+    }
+    this.station.update = function() {
+        M.api.getJSONBgCb('qruqsp.weather.stationGet', {'tnid':M.curTenantID, 'station_id':this.station_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.qruqsp_weather_main.station;
+            p.data = rsp.station;
+            p.sections.temperature.legend = [];
+            p.sections.temperature.sensor_ids = [];
+            p.sections.temperature.dataLoaded = 'no';
+            p.sections.humidity.legend = [];
+            p.sections.humidity.sensor_ids = [];
+            p.sections.humidity.dataLoaded = 'no';
+            p.sections.pressure.legend = [];
+            p.sections.pressure.sensor_ids = [];
+            p.sections.pressure.dataLoaded = 'no';
             for(var i in rsp.station.sensors) {
                 if( (rsp.station.sensors[i].flags&0x01) == 0x01 ) {
                     continue;
@@ -181,16 +244,7 @@ function qruqsp_weather_main() {
                     p.sections.pressure.sensor_ids.push(rsp.station.sensors[i].id);
                 }
             }
-            p.refresh();
-            p.show(cb);
-        });
-    }
-    this.station.beacon = function() {
-        M.api.getJSONCb('qruqsp.weather.stationBeacon', {'tnid':M.curTenantID, 'station_id':this.station_id}, function(rsp) {
-            if( rsp.stat != 'ok' ) {
-                M.api.err(rsp);
-                return false;
-            }
+            p.refreshSection('sensors');
         });
     }
     this.station.addButton('edit', 'Edit', 'M.qruqsp_weather_main.editstation.open(\'M.qruqsp_weather_main.station.open();\',M.qruqsp_weather_main.station.station_id);');
