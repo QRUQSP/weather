@@ -233,8 +233,9 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     // Check if station should be beaconed
     //
     $strsql = "SELECT flags, "
-        . "IFNULL(TIMESTAMPDIFF(SECOND, aprs_last_beacon, UTC_TIMESTAMP()), 0) AS last_beacon_age, "
-        . "aprs_frequency "
+        . "IFNULL(TIMESTAMPDIFF(SECOND, aprs_last_beacon, UTC_TIMESTAMP()), 999) AS last_beacon_age, "
+        . "IFNULL(TIMESTAMPDIFF(SECOND, wu_last_submit, UTC_TIMESTAMP()), 999) AS wu_last_submit_age, "
+        . "aprs_frequency, wu_frequency "
         . "FROM qruqsp_weather_stations "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $sensor['station_id']) . "' "
         . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -257,7 +258,21 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
         ciniki_core_loadMethod($ciniki, 'qruqsp', 'weather', 'private', 'beaconSend');
         $rc = qruqsp_weather_beaconSend($ciniki, $tnid, $sensor['station_id']); 
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.41', 'msg'=>'Unable to send aprs beacon', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.', 'msg'=>'Unable to send aprs beacon', 'err'=>$rc['err']));
+        }
+    }
+
+    //
+    // Make sure submit to weather underground is enabled, and has been longer than frequency
+    //
+    if( ($station['flags']&0x04) == 0x04 
+        && $station['wu_frequency'] > 0
+        && $station['wu_last_submit_age'] > ($station['wu_frequency'] * 60)
+        ) {
+        ciniki_core_loadMethod($ciniki, 'qruqsp', 'weather', 'private', 'wuSubmit');
+        $rc = qruqsp_weather_wuSubmit($ciniki, $tnid, $sensor['station_id']); 
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.41', 'msg'=>'Unable to submit to weather underground', 'err'=>$rc['err']));
         }
     }
 

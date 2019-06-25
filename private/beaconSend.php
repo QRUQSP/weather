@@ -38,6 +38,7 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
         . "sensors.name AS sensor_name, "
         . "sensors.fields AS sensor_fields, "
         . "IFNULL(data.sample_date, '') as sample_date, "
+        . "IFNULL(TIMESTAMPDIFF(SECOND, data.sample_date, UTC_TIMESTAMP()), 999) AS sample_date_age, "
         . "IFNULL(data.celsius, '') as celsius, "
         . "IFNULL(data.humidity, '') as humidity, "
         . "IFNULL(data.millibars, '') as millibars, "
@@ -72,7 +73,7 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
                 'aprs_wind_deg_sensor_id', 'aprs_rain_mm_sensor_id', 'aprs_last_beacon', 'aprs_frequency')),
         array('container'=>'sensors', 'fname'=>'sensor_id',
             'fields'=>array('id'=>'sensor_id', 'name'=>'sensor_name', 'fields'=>'sensor_fields', 
-                'sample_date', 'celsius', 'humidity', 'millibars', 'wind_kph', 'wind_deg', 'rain_mm'),
+                'sample_date', 'sample_date_age', 'celsius', 'humidity', 'millibars', 'wind_kph', 'wind_deg', 'rain_mm'),
             ),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -103,14 +104,14 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
     // Check if station is setup for beaconing/digipeating
     //
     if( ($station['flags']&0x02) == 0 ) {
-//FIXME:        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.21', 'msg'=>'Station not enabled for APRS Beacon'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.45', 'msg'=>'Station not enabled for APRS Beacon'));
     }
 
     //
     // Check for sensors configured
     //
     if( !isset($station['sensors']) || count($station['sensors']) < 1 ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.39', 'msg'=>'No APRS sensors found'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.49', 'msg'=>'No APRS sensors found'));
     }
 
     //
@@ -160,10 +161,6 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
     $packet['data'] .= '_';
 
     //
-    // FIXME: Check how old sensor data is before beaconing
-    //
-
-    //
     // FIXME: Setup Settings for beacon timeframe interval
     //
 
@@ -172,7 +169,16 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
     //
     $wind_mph = '   ';
     $wind_deg = '000';
+    $num_valid_sensors = 0;
     foreach($station['sensors'] as $sensor) {
+        //
+        // Skip sensors that have old data (older than 3 minutes)
+        //
+        if( $sensor['sample_date_age'] > 180 ) {
+            error_log('Old data for ' . $sensor['name'] . ' of ' . $sensor['sample_date_age'] . ' seconds');
+            continue;
+        }
+        $num_valid_sensors++;
         if( $sensor['id'] == $station['aprs_celsius_sensor_id'] ) {
             $temp = sprintf("t%03d", (($sensor['celsius'] * (9/5)) + 32));
         }
@@ -184,7 +190,7 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
             }
         }
         if( $sensor['id'] == $station['aprs_millibars_sensor_id'] ) {
-            $millibars = sprintf("b%03.02f", ($sensor['millibars']/10));
+            $millibars = sprintf("b%05d", ($sensor['millibars'] * 10));
         }
         if( $sensor['id'] == $station['aprs_wind_kph_sensor_id'] ) {
             $wind_mph = sprintf("%03d", ($sensor['wind_kph']/1.60934));
@@ -203,7 +209,8 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
         }
     }
 
-    $packet['data'] .= $wind_mph . '/' . $wind_deg;
+    //$packet['data'] .= $wind_mph . '/' . $wind_deg;
+    $packet['data'] .= $wind_deg . '/' . $wind_mph;
 
     if( isset($temp) ) {
         $packet['data'] .= $temp;
@@ -216,6 +223,10 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
     }
     if( isset($rain_mm) ) {
         $packet['data'] .= $rain_mm;
+    }
+
+    if( $num_valid_sensors == 0 ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.42', 'msg'=>'Sensor data too old to beacon', 'err'=>$rc['err']));
     }
 
     //
@@ -231,7 +242,7 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
     ciniki_core_loadMethod($ciniki, 'qruqsp', 'tnc', 'hooks', 'packetSend');
     $rc = qruqsp_tnc_hooks_packetSend($ciniki, $tnid, array('packet'=>$packet));
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.18', 'msg'=>'Error sending message', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.42', 'msg'=>'Error sending message', 'err'=>$rc['err']));
     }
 
     //
@@ -241,7 +252,7 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
     $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'qruqsp.weather.station', $station['id'], array(
         'aprs_last_beacon'=>$dt->format('Y-m-d H:i:s')), 0x04);
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.33', 'msg'=>'Unable to update the station'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.48', 'msg'=>'Unable to update the station'));
     }
     
     return array('stat'=>'ok');

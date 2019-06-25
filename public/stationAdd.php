@@ -32,6 +32,15 @@ function qruqsp_weather_stationAdd(&$ciniki) {
         'aprs_wind_deg_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'APRS Wind Direction Sensor'),
         'aprs_rain_mm_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'APRS Rainfall Sensor'),
         'aprs_frequency'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'APRS Frequency'),
+        'wu_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Weather Underground Station ID'),
+        'wu_key'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Weather Underground Station Key'),
+        'wu_celsius_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Weather Underground Celsius Sensor'),
+        'wu_humidity_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Weather Underground Humidity Sensor'),
+        'wu_millibars_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Weather Underground Barometer Sensor'),
+        'wu_wind_kph_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Weather Underground Wind Speed Sensor'),
+        'wu_wind_deg_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Weather Underground Wind Direction Sensor'),
+        'wu_rain_mm_sensor_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Weather Underground Rainfall Sensor'),
+        'wu_frequency'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Weather Underground Submission Frequency'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;

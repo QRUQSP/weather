@@ -94,6 +94,9 @@ function qruqsp_weather_main() {
 //            'graphs':{'label':'Graphs', 'fn':'M.qruqsp_weather_main.station.switchTab("graphs");'},
 //            'historical':
 //            }},
+        'wu_details':{'label':'Weather Underground', 'type':'simplegrid', 'num_cols':2, 'aside':'yes',
+            'visible':function() {return (M.qruqsp_weather_main.station.data.flags&0x04) == 0x04 ? 'yes' : 'no';},
+            },
         'sensors':{'label':'Sensors', 'type':'simplegrid', 'num_cols':7,
             'headerValues':['Name', 'Last Reading', 'Temp', 'Humidity', 'Pressure', 'Wind', 'Rain'],
             'headerClasses':['', '', 'aligncenter', 'aligncenter', 'aligncenter', 'aligncenter', 'aligncenter'],
@@ -124,7 +127,7 @@ function qruqsp_weather_main() {
             'loadData':'yes',
             'dataFn':this.station.graphData,
             },
-        'windspeed':{'label':'Wind Speed (km)', 'type':'metricsgraphics', 
+        'windspeed':{'label':'Wind Speed (kph)', 'type':'metricsgraphics', 
             'visible':function() { return M.qruqsp_weather_main.station.sections.windspeed.sensor_ids.length > 0 ? 'yes' : 'no'},
             'graphtype':'multiline',
             'missing_is_hidden': true,
@@ -198,7 +201,7 @@ function qruqsp_weather_main() {
             }
             p.refresh();
             p.show(cb);
-            p.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 10000);
+            p.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 30000);
         });
     }
     this.station.beacon = function() {
@@ -211,7 +214,7 @@ function qruqsp_weather_main() {
     }
     this.station.autoUpdate = function() {
         this.update();
-        this.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 10000);
+        this.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 30000);
     }
     this.station.update = function() {
         M.api.getJSONBgCb('qruqsp.weather.stationGet', {'tnid':M.curTenantID, 'station_id':this.station_id}, function(rsp) {
@@ -276,6 +279,18 @@ function qruqsp_weather_main() {
             'aprs_wind_deg_sensor_id':{'label':'Wind Direction', 'type':'select', 'options':{}},
             'aprs_rain_mm_sensor_id':{'label':'Rainfall', 'type':'select', 'options':{}},
             }},
+        'wu_sensors':{'label':'Weather Underground', 'fields':{
+            'flag3':{'label':'Enable', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x04},
+            'wu_frequency':{'label':'Frequency (min)', 'type':'toggle', 'toggles':{'1':'1', '5':'5', '10':'10', '15':'15', '30':'30', '60':'60'}},
+            'wu_id':{'label':'Station ID', 'type':'text'},
+            'wu_key':{'label':'Station Key', 'type':'text'},
+            'wu_celsius_sensor_id':{'label':'Temperature', 'type':'select', 'options':{}},
+            'wu_humidity_sensor_id':{'label':'Humidity', 'type':'select', 'options':{}},
+            'wu_millibars_sensor_id':{'label':'Pressure', 'type':'select', 'options':{}},
+            'wu_wind_kph_sensor_id':{'label':'Wind Speed', 'type':'select', 'options':{}},
+            'wu_wind_deg_sensor_id':{'label':'Wind Direction', 'type':'select', 'options':{}},
+            'wu_rain_mm_sensor_id':{'label':'Rainfall', 'type':'select', 'options':{}},
+            }},
 /*        'aprs':{'label':'APRS', 'fields':{
             'aprs_celsius_sensor_id':{'label':'APRS Celsius Sensor', 'type':'select', 'options':{}},
             'aprs_humidity_sensor_id':{'label':'APRS Celsius Sensor', 'type':'select', 'options':{}},
@@ -311,13 +326,33 @@ function qruqsp_weather_main() {
             p.sections.aprs_sensors.fields.aprs_wind_kph_sensor_id.options = {'0':'None'};
             p.sections.aprs_sensors.fields.aprs_wind_deg_sensor_id.options = {'0':'None'};
             p.sections.aprs_sensors.fields.aprs_rain_mm_sensor_id.options = {'0':'None'};
+            p.sections.wu_sensors.fields.wu_celsius_sensor_id.options = {'0':'None'};
+            p.sections.wu_sensors.fields.wu_humidity_sensor_id.options = {'0':'None'};
+            p.sections.wu_sensors.fields.wu_millibars_sensor_id.options = {'0':'None'};
+            p.sections.wu_sensors.fields.wu_wind_kph_sensor_id.options = {'0':'None'};
+            p.sections.wu_sensors.fields.wu_wind_deg_sensor_id.options = {'0':'None'};
+            p.sections.wu_sensors.fields.wu_rain_mm_sensor_id.options = {'0':'None'};
             if( rsp.station.sensors != null ) {
                 for(var i in rsp.station.sensors) {
                     if( (rsp.station.sensors[i].fields&0x01) == 0x01 ) {
                         p.sections.aprs_sensors.fields.aprs_celsius_sensor_id.options[rsp.station.sensors[i].id] = rsp.station.sensors[i].name;
+                        p.sections.wu_sensors.fields.wu_celsius_sensor_id.options[rsp.station.sensors[i].id] = rsp.station.sensors[i].name;
                     }
                     if( (rsp.station.sensors[i].fields&0x02) == 0x02 ) {
                         p.sections.aprs_sensors.fields.aprs_humidity_sensor_id.options[rsp.station.sensors[i].id] = rsp.station.sensors[i].name;
+                        p.sections.wu_sensors.fields.wu_humidity_sensor_id.options[rsp.station.sensors[i].id] = rsp.station.sensors[i].name;
+                    }
+                    if( (rsp.station.sensors[i].fields&0x04) == 0x04 ) {
+                        p.sections.aprs_sensors.fields.aprs_millibars_sensor_id.options[rsp.station.sensors[i].id] = rsp.station.sensors[i].name;
+                        p.sections.wu_sensors.fields.wu_millibars_sensor_id.options[rsp.station.sensors[i].id] = rsp.station.sensors[i].name;
+                    }
+                    if( (rsp.station.sensors[i].fields&0x10) == 0x10 ) {
+                        p.sections.aprs_sensors.fields.aprs_wind_kph_sensor_id.options[rsp.station.sensors[i].id] = rsp.station.sensors[i].name;
+                        p.sections.wu_sensors.fields.wu_wind_kph_sensor_id.options[rsp.station.sensors[i].id] = rsp.station.sensors[i].name;
+                    }
+                    if( (rsp.station.sensors[i].fields&0x20) == 0x20 ) {
+                        p.sections.aprs_sensors.fields.aprs_wind_deg_sensor_id.options[rsp.station.sensors[i].id] = rsp.station.sensors[i].name;
+                        p.sections.wu_sensors.fields.wu_wind_deg_sensor_id.options[rsp.station.sensors[i].id] = rsp.station.sensors[i].name;
                     }
                 }
             }

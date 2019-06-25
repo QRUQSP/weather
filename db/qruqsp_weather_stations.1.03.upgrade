@@ -1,0 +1,14 @@
+#
+# Add the field to store the weather underground details
+#
+ALTER TABLE qruqsp_weather_stations ADD COLUMN wu_id varchar(50) not null AFTER aprs_frequency;
+ALTER TABLE qruqsp_weather_stations ADD COLUMN wu_key varchar(50) not null AFTER wu_id;
+ALTER TABLE qruqsp_weather_stations ADD COLUMN wu_celsius_sensor_id int not null AFTER wu_key;
+ALTER TABLE qruqsp_weather_stations ADD COLUMN wu_humidity_sensor_id int not null AFTER wu_celsius_sensor_id;
+ALTER TABLE qruqsp_weather_stations ADD COLUMN wu_millibars_sensor_id int not null AFTER wu_humidity_sensor_id;
+ALTER TABLE qruqsp_weather_stations ADD COLUMN wu_wind_kph_sensor_id int not null AFTER wu_millibars_sensor_id;
+ALTER TABLE qruqsp_weather_stations ADD COLUMN wu_wind_deg_sensor_id int not null AFTER wu_wind_kph_sensor_id;
+ALTER TABLE qruqsp_weather_stations ADD COLUMN wu_rain_mm_sensor_id int not null AFTER wu_wind_deg_sensor_id;
+ALTER TABLE qruqsp_weather_stations ADD COLUMN wu_last_submit datetime not null AFTER wu_rain_mm_sensor_id;
+ALTER TABLE qruqsp_weather_stations ADD COLUMN wu_frequency int not null AFTER wu_last_submit;
+ALTER TABLE qruqsp_weather_stations COMMENT='v1.03';

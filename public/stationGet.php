@@ -91,7 +91,17 @@ function qruqsp_weather_stationGet($ciniki) {
             . "qruqsp_weather_stations.aprs_wind_deg_sensor_id, "
             . "qruqsp_weather_stations.aprs_rain_mm_sensor_id, "
             . "qruqsp_weather_stations.aprs_last_beacon, "
-            . "qruqsp_weather_stations.aprs_frequency "
+            . "qruqsp_weather_stations.aprs_frequency, "
+            . "qruqsp_weather_stations.wu_id, "
+            . "qruqsp_weather_stations.wu_key, "
+            . "qruqsp_weather_stations.wu_celsius_sensor_id, "
+            . "qruqsp_weather_stations.wu_humidity_sensor_id, "
+            . "qruqsp_weather_stations.wu_millibars_sensor_id, "
+            . "qruqsp_weather_stations.wu_wind_kph_sensor_id, "
+            . "qruqsp_weather_stations.wu_wind_deg_sensor_id, "
+            . "qruqsp_weather_stations.wu_rain_mm_sensor_id, "
+            . "qruqsp_weather_stations.wu_last_submit, "
+            . "qruqsp_weather_stations.wu_frequency "
             . "FROM qruqsp_weather_stations "
             . "WHERE qruqsp_weather_stations.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND qruqsp_weather_stations.id = '" . ciniki_core_dbQuote($ciniki, $args['station_id']) . "' "
@@ -102,7 +112,10 @@ function qruqsp_weather_stationGet($ciniki) {
                 'fields'=>array('name', 'flags', 'latitude', 'longitude', 'altitude', 
                     'aprs_celsius_sensor_id', 'aprs_humidity_sensor_id', 'aprs_millibars_sensor_id', 
                     'aprs_wind_kph_sensor_id', 'aprs_wind_deg_sensor_id', 'aprs_rain_mm_sensor_id',
-                    'aprs_last_beacon', 'aprs_frequency'),
+                    'aprs_last_beacon', 'aprs_frequency',
+                    'wu_id', 'wu_key', 'wu_celsius_sensor_id', 'wu_humidity_sensor_id', 'wu_millibars_sensor_id', 
+                    'wu_wind_kph_sensor_id', 'wu_wind_deg_sensor_id', 'wu_rain_mm_sensor_id',
+                    'wu_last_submit', 'wu_frequency'),
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
