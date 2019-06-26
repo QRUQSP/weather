@@ -155,7 +155,7 @@ function qruqsp_weather_wuSubmit(&$ciniki, $tnid, $station_id) {
             continue;
         }
         if( $sensor['id'] == $station['wu_celsius_sensor_id'] ) {
-            $sensor_args .= sprintf("&tempf=%d", (($sensor['celsius'] * (9/5)) + 32));
+            $sensor_args .= sprintf("&tempf=%.1f", (($sensor['celsius'] * (9/5)) + 32));
         }
         if( $sensor['id'] == $station['wu_humidity_sensor_id'] && $sensor['humidity'] > 0 ) {
             if( $sensor['humidity'] >= 100 ) {
@@ -168,7 +168,7 @@ function qruqsp_weather_wuSubmit(&$ciniki, $tnid, $station_id) {
             $sensor_args .= sprintf("&baromin=%.02f", ($sensor['millibars'] * 0.029530));
         }
         if( $sensor['id'] == $station['wu_wind_kph_sensor_id'] ) {
-            $sensor_args .= sprintf("&windspeedmph=%d", ($sensor['wind_kph']/1.60934));
+            $sensor_args .= sprintf("&windspeedmph=%.1f", ($sensor['wind_kph']/1.60934));
         } 
         if( $sensor['id'] == $station['wu_wind_deg_sensor_id'] ) {
             //
@@ -191,6 +191,20 @@ function qruqsp_weather_wuSubmit(&$ciniki, $tnid, $station_id) {
     // Submit to weather underground
     //
     $wu_response = file_get_contents($submit_url);
+
+    //
+    // Check if request should be logged
+    //
+    if( isset($ciniki['config']['qruqsp.weather']['wu.logging']) 
+        && $ciniki['config']['qruqsp.weather']['wu.logging'] == 'yes' 
+        && isset($ciniki['config']['qruqsp.core']['log_dir'])
+        && $ciniki['config']['qruqsp.core']['log_dir'] != '' 
+        ) {
+        $dt = new DateTime('now', new DateTimezone('UTC'));
+        file_put_contents($ciniki['config']['qruqsp.core']['log_dir'] . '/qruqsp.weather.wu.' . $dt->format('Y-m') . '.log',  
+            '[' . $dt->format('d/M/Y:H:i:s O') . '] ' . trim($wu_response) . ' ' . $submit_url . "\n",
+            FILE_APPEND);
+    }
 
     //
     // Update the database with wu_last_submit time

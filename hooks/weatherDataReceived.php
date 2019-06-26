@@ -258,7 +258,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
         ciniki_core_loadMethod($ciniki, 'qruqsp', 'weather', 'private', 'beaconSend');
         $rc = qruqsp_weather_beaconSend($ciniki, $tnid, $sensor['station_id']); 
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.', 'msg'=>'Unable to send aprs beacon', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.18', 'msg'=>'Unable to send aprs beacon', 'err'=>$rc['err']));
         }
     }
 

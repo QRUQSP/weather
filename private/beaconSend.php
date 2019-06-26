@@ -226,15 +226,13 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
     }
 
     if( $num_valid_sensors == 0 ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.42', 'msg'=>'Sensor data too old to beacon', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.46', 'msg'=>'Sensor data too old to beacon', 'err'=>$rc['err']));
     }
 
     //
     // Add QRUSP to end of weather packet to mark as a QRUQSP weather packet
     //
     $packet['data'] .= 'QSP';
-
-    error_log($packet['data']);
 
     //
     // Send the packet
