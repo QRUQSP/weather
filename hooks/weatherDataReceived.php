@@ -33,6 +33,21 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     }
 
     //
+    // Check if request should be logged
+    //
+    if( isset($ciniki['config']['qruqsp.weather']['received.logging']) 
+        && $ciniki['config']['qruqsp.weather']['received.logging'] == 'yes' 
+        && isset($ciniki['config']['qruqsp.core']['log_dir'])
+        && $ciniki['config']['qruqsp.core']['log_dir'] != '' 
+        ) {
+        $dt = new DateTime('now', new DateTimezone('UTC'));
+        file_put_contents($ciniki['config']['qruqsp.core']['log_dir'] . '/qruqsp.weather.received.' . $dt->format('Y-m') . '.log',  
+            '[' . $dt->format('d/M/Y:H:i:s O') . '] ' . json_encode($args) . "\n",
+            FILE_APPEND);
+    }
+
+
+    //
     // Parse the time in UTC and normalize to current minute.
     //
     $dt = new DateTime($args['sample_date'], new DateTimezone('UTC'));
@@ -69,6 +84,12 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
         $fields_sql2 .= ", '" . ciniki_core_dbQuote($ciniki, $args['wind_kph']) . "' ";
         $update_sql .= ($update_sql != '' ? ', ' : '') . "wind_kph = '" . ciniki_core_dbQuote($ciniki, $args['wind_kph']) . "'";
     }
+/*    if( isset($args['wind_avg_km_h']) ) {
+        $fields |= 0x10;
+        $fields_sql1 .= ', wind_kph';
+        $fields_sql2 .= ", '" . ciniki_core_dbQuote($ciniki, $args['wind_avg_km_h']) . "' ";
+        $update_sql .= ($update_sql != '' ? ', ' : '') . "wind_kph = '" . ciniki_core_dbQuote($ciniki, $args['wind_avg_km_h']) . "'";
+    } */
     if( isset($args['wind_deg']) ) {
         $fields |= 0x20;
         $fields_sql1 .= ', wind_deg';
