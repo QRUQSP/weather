@@ -63,7 +63,7 @@ function qruqsp_weather_main() {
     //
     // The panel to display Station
     //
-    this.station = new M.panel('Station', 'qruqsp_weather_main', 'station', 'mc', 'large narrowaside', 'sectioned', 'qruqsp.weather.main.station');
+    this.station = new M.panel('Station', 'qruqsp_weather_main', 'station', 'mc', 'medium mediumaside', 'sectioned', 'qruqsp.weather.main.station');
     this.station.data = null;
     this.station.station_id = 0;
     this.station.refreshTimer = null;
@@ -102,10 +102,10 @@ function qruqsp_weather_main() {
             'headerClasses':['', '', 'aligncenter', 'aligncenter', 'aligncenter', 'aligncenter', 'aligncenter'],
             'cellClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
             },
-        'temperature':{'label':'Temperature (C)', 'type':'metricsgraphics', 
+        'temperature':{'label':'Temperature (C)', 'type':'metricsgraphics', 'aside':'yes',
             'visible':function() { return M.qruqsp_weather_main.station.sections.temperature.sensor_ids.length > 0 ? 'yes' : 'no'},
             'graphtype':'multiline',
-            'linked':true,
+            'linked':false,
             'missing_is_hidden': true,
             'legend':[],
             'loadData':'yes',
@@ -115,18 +115,19 @@ function qruqsp_weather_main() {
             'visible':function() { return M.qruqsp_weather_main.station.sections.humidity.sensor_ids.length > 0 ? 'yes' : 'no'},
             'graphtype':'multiline',
             'area':false,
-            'linked':true,
+            'linked':false,
             'missing_is_hidden': true,
             'min_y_from_data':true,
             'legend':[],
             'loadData':'yes',
             'dataFn':this.station.graphData,
             },
-        'pressure':{'label':'Barometric Pressure (millibars)', 'type':'metricsgraphics', 
+        'pressure':{'label':'Barometric Pressure (millibars)', 'type':'metricsgraphics', 'aside':'yes',
             'visible':function() { return M.qruqsp_weather_main.station.sections.pressure.sensor_ids.length > 0 ? 'yes' : 'no'},
             'graphtype':'multiline',
-            'linked':true,
+            'linked':false,
             'missing_is_hidden': true,
+            'min_y_from_data': true,
             'legend':[],
             'loadData':'yes',
             'dataFn':this.station.graphData,
@@ -134,7 +135,7 @@ function qruqsp_weather_main() {
         'windspeed':{'label':'Wind Speed (kph)', 'type':'metricsgraphics', 
             'visible':function() { return M.qruqsp_weather_main.station.sections.windspeed.sensor_ids.length > 0 ? 'yes' : 'no'},
             'graphtype':'multiline',
-            'linked':true,
+            'linked':false,
             'missing_is_hidden': true,
             'legend':[],
             'loadData':'yes',
@@ -274,15 +275,17 @@ function qruqsp_weather_main() {
             'longitude':{'label':'Longitude', 'type':'text'},
             'altitude':{'label':'Altitude', 'type':'text'},
         }},
-        'aprs_sensors':{'label':'APRS Beacon', 'fields':{
-            'flags2':{'label':'Beacon', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x02},
-            'aprs_frequency':{'label':'Frequency (min)', 'type':'toggle', 'toggles':{'1':'1', '5':'5', '10':'10', '15':'15', '30':'30', '45':'45', '60':'60'}},
-            'aprs_celsius_sensor_id':{'label':'Temperature', 'type':'select', 'options':{}},
-            'aprs_humidity_sensor_id':{'label':'Humidity', 'type':'select', 'options':{}},
-            'aprs_millibars_sensor_id':{'label':'Pressure', 'type':'select', 'options':{}},
-            'aprs_wind_kph_sensor_id':{'label':'Wind Speed', 'type':'select', 'options':{}},
-            'aprs_wind_deg_sensor_id':{'label':'Wind Direction', 'type':'select', 'options':{}},
-            'aprs_rain_mm_sensor_id':{'label':'Rainfall', 'type':'select', 'options':{}},
+        'aprs_sensors':{'label':'APRS Beacon', 
+            'visible':function() {return (M.modOn('qruqsp.aprs') ? 'yes' : 'no'); },
+            'fields':{
+                'flags2':{'label':'Beacon', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x02},
+                'aprs_frequency':{'label':'Frequency (min)', 'type':'toggle', 'toggles':{'1':'1', '5':'5', '10':'10', '15':'15', '30':'30', '45':'45', '60':'60'}},
+                'aprs_celsius_sensor_id':{'label':'Temperature', 'type':'select', 'options':{}},
+                'aprs_humidity_sensor_id':{'label':'Humidity', 'type':'select', 'options':{}},
+                'aprs_millibars_sensor_id':{'label':'Pressure', 'type':'select', 'options':{}},
+                'aprs_wind_kph_sensor_id':{'label':'Wind Speed', 'type':'select', 'options':{}},
+                'aprs_wind_deg_sensor_id':{'label':'Wind Direction', 'type':'select', 'options':{}},
+                'aprs_rain_mm_sensor_id':{'label':'Rainfall', 'type':'select', 'options':{}},
             }},
         'wu_sensors':{'label':'Weather Underground', 'fields':{
             'flag3':{'label':'Enable', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x04},
