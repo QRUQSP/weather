@@ -40,8 +40,12 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
         && isset($ciniki['config']['qruqsp.core']['log_dir'])
         && $ciniki['config']['qruqsp.core']['log_dir'] != '' 
         ) {
+        $log_dir = $ciniki['config']['qruqsp.core']['log_dir'] . '/qruqsp.weather';
+        if( !file_exists($log_dir) ) {
+            mkdir($log_dir);
+        }
         $dt = new DateTime('now', new DateTimezone('UTC'));
-        file_put_contents($ciniki['config']['qruqsp.core']['log_dir'] . '/qruqsp.weather.received.' . $dt->format('Y-m') . '.log',  
+        file_put_contents($log_dir . '/received.' . $dt->format('Y-m') . '.log',  
             '[' . $dt->format('d/M/Y:H:i:s O') . '] ' . json_encode($args) . "\n",
             FILE_APPEND);
     }

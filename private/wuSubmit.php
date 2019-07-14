@@ -200,8 +200,13 @@ function qruqsp_weather_wuSubmit(&$ciniki, $tnid, $station_id) {
         && isset($ciniki['config']['qruqsp.core']['log_dir'])
         && $ciniki['config']['qruqsp.core']['log_dir'] != '' 
         ) {
+        $log_dir = $ciniki['config']['qruqsp.core']['log_dir'] . '/qruqsp.weather';
+        if( !file_exists($log_dir) ) {
+            mkdir($log_dir);
+        }
+
         $dt = new DateTime('now', new DateTimezone('UTC'));
-        file_put_contents($ciniki['config']['qruqsp.core']['log_dir'] . '/qruqsp.weather.wu.' . $dt->format('Y-m') . '.log',  
+        file_put_contents($log_dir . '/wu.' . $dt->format('Y-m') . '.log',  
             '[' . $dt->format('d/M/Y:H:i:s O') . '] ' . trim($wu_response) . ' ' . $submit_url . "\n",
             FILE_APPEND);
     }
