@@ -309,7 +309,7 @@ function qruqsp_weather_main() {
             p.data.svgstyles += '</style>';
             p.refresh();
             p.show(cb);
-            p.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 10000);
+            p.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 30000);
         });
     }
     this.station.beacon = function() {
@@ -325,7 +325,7 @@ function qruqsp_weather_main() {
             clearTimeout(this.refreshTimer);
         }
         this.update();
-        this.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 10000);
+        this.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 30000);
     }
     this.station.update = function() {
         this.end_ts = Math.floor(Date.now()/(1000*this.slice_seconds)) * this.slice_seconds;
@@ -376,7 +376,7 @@ function qruqsp_weather_main() {
             'visible':function() {return (M.modOn('qruqsp.aprs') ? 'yes' : 'no'); },
             'fields':{
                 'flags2':{'label':'Beacon', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x02},
-                'aprs_frequency':{'label':'Frequency (min)', 'type':'toggle', 'toggles':{'1':'1', '5':'5', '10':'10', '15':'15', '30':'30', '45':'45', '60':'60'}},
+                'aprs_frequency':{'label':'Frequency (min)', 'type':'toggle', 'toggles':{'10':'10', '15':'15', '30':'30', '45':'45', '60':'60'}},
                 'aprs_celsius_sensor_id':{'label':'Temperature', 'type':'select', 'options':{}},
                 'aprs_humidity_sensor_id':{'label':'Humidity', 'type':'select', 'options':{}},
                 'aprs_millibars_sensor_id':{'label':'Pressure', 'type':'select', 'options':{}},
