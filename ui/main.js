@@ -110,8 +110,8 @@ function qruqsp_weather_main() {
             'visible':function() { return M.qruqsp_weather_main.station.sections.humidity.sensor_ids.length > 0 ? 'yes' : 'no'},
             'dataFields':['humidity'],
             },
-        'pressure':{'label':'Pressure', 'type':'svg', 'aside':'no',
-            'visible':function() { return M.qruqsp_weather_main.station.sections.pressure.sensor_ids.length > 0 ? 'yes' : 'no'},
+        'millibars':{'label':'Pressure', 'type':'svg', 'aside':'no',
+            'visible':function() { return M.qruqsp_weather_main.station.sections.millibars.sensor_ids.length > 0 ? 'yes' : 'no'},
             'dataFields':['millibars'],
             },
         'wind_kph':{'label':'Wind Speed (kph)', 'type':'svg', 'aside':'no',
@@ -207,6 +207,17 @@ function qruqsp_weather_main() {
                     return false;
                 }
                 var p = M.qruqsp_weather_main.station;
+                //
+                // If the min or max values are outside of current size, then need to reload entire graph
+                //
+                if( rsp.yaxis_left_min < p.sections[s].yaxis_left_min 
+                    || rsp.yaxis_left_max > p.sections[s].yaxis_left_max 
+                    || rsp.yaxis_right_min < p.sections[s].yaxis_right_min 
+                    || rsp.yaxis_right_max > p.sections[s].yaxis_right_max 
+                    ) {
+                    M.qruqsp_weather_main.station.loadSVG(s);
+                    return false;
+                }
                 var e = M.gE(p.panelUID + '_' + s + '_svg');
                 var svg = e.children[0];
                 var offset = 51;
@@ -244,6 +255,7 @@ function qruqsp_weather_main() {
                     }
                 }
                 p.sections[s].last_slice_id = rsp.last_slice_id;
+                    
                 p.sections[s].yaxis_left_min = rsp.yaxis_left_min;
                 p.sections[s].yaxis_left_max = rsp.yaxis_left_max;
                 p.sections[s].yaxis_right_min = rsp.yaxis_right_min;
@@ -265,7 +277,7 @@ function qruqsp_weather_main() {
             p.data = rsp.station;
             p.sections.celsius.sensor_ids = [];
             p.sections.humidity.sensor_ids = [];
-            p.sections.pressure.sensor_ids = [];
+            p.sections.millibars.sensor_ids = [];
             p.sections.wind_kph.sensor_ids = [];
             p.data.svgstyles = '<style>';
 
@@ -280,7 +292,7 @@ function qruqsp_weather_main() {
                     p.sections.humidity.sensor_ids.push(rsp.station.sensors[i].id);
                 }
                 if( (rsp.station.sensors[i].fields&0x04) == 0x04 ) {
-                    p.sections.pressure.sensor_ids.push(rsp.station.sensors[i].id);
+                    p.sections.millibars.sensor_ids.push(rsp.station.sensors[i].id);
                 }
                 if( (rsp.station.sensors[i].fields&0x10) == 0x10 ) {
                     p.sections.wind_kph.sensor_ids.push(rsp.station.sensors[i].id);
@@ -337,9 +349,10 @@ function qruqsp_weather_main() {
         });
         for(var i in this.sections) {
             if( this.sections[i].type == 'svg' ) {
-                this.updateSVG(i);
+//                this.updateSVG(i);
             }
         }
+                this.updateSVG('millibars');
     }
     this.station.addButton('edit', 'Edit', 'M.qruqsp_weather_main.editstation.open(\'M.qruqsp_weather_main.station.open();\',M.qruqsp_weather_main.station.station_id);');
     this.station.addButton('beacon', 'Beacon', 'M.qruqsp_weather_main.station.beacon();');

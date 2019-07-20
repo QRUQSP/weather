@@ -301,13 +301,13 @@ function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
     //
     // If the min/max passed in is larger, use them
     //
-    if( isset($args['yaxis_left_min']) && $args['yaxis_left_min'] > $yaxis_left_min ) {
+    if( isset($args['yaxis_left_min']) && $args['yaxis_left_min'] < $yaxis_left_min ) {
         $yaxis_left_min = $args['yaxis_left_min'];
     }
     if( isset($args['yaxis_left_max']) && $args['yaxis_left_max'] > $yaxis_left_max ) {
         $yaxis_left_max = $args['yaxis_left_max'];
     }
-    if( isset($args['yaxis_right_min']) && $args['yaxis_right_min'] > $yaxis_right_min ) {
+    if( isset($args['yaxis_right_min']) && $args['yaxis_right_min'] < $yaxis_right_min ) {
         $yaxis_right_min = $args['yaxis_right_min'];
     }
     if( isset($args['yaxis_right_max']) && $args['yaxis_right_max'] > $yaxis_right_max ) {
