@@ -349,10 +349,9 @@ function qruqsp_weather_main() {
         });
         for(var i in this.sections) {
             if( this.sections[i].type == 'svg' ) {
-//                this.updateSVG(i);
+                this.updateSVG(i);
             }
         }
-                this.updateSVG('millibars');
     }
     this.station.addButton('edit', 'Edit', 'M.qruqsp_weather_main.editstation.open(\'M.qruqsp_weather_main.station.open();\',M.qruqsp_weather_main.station.station_id);');
     this.station.addButton('beacon', 'Beacon', 'M.qruqsp_weather_main.station.beacon();');
