@@ -157,6 +157,7 @@ function qruqsp_weather_main() {
                 this.loadSVG(i);
             }
         }
+        this.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 30000);
     }
     this.station.loadSVG = function(s) {
         M.api.getJSONBgCb('qruqsp.weather.svgGet', {'tnid':M.curTenantID, 
