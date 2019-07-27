@@ -102,9 +102,9 @@ function qruqsp_weather_main() {
 //            '1920':{'label':'16 Days', 'fn':'M.qruqsp_weather_main.station.switchTab("1920");'},
 //            '3840':{'label':'32 Days', 'fn':'M.qruqsp_weather_main.station.switchTab("3840");'},
             }},
-        'celsius':{'label':'Temperature (C)', 'type':'svg', 'aside':'yes',
-            'visible':function() { return M.qruqsp_weather_main.station.sections.celsius.sensor_ids.length > 0 ? 'yes' : 'no'},
-            'dataFields':['celsius'],
+        'temperature':{'label':'Temperature (C)', 'type':'svg', 'aside':'yes',
+            'visible':function() { return M.qruqsp_weather_main.station.sections.temperature.sensor_ids.length > 0 ? 'yes' : 'no'},
+            'dataFields':['temperature'],
             },
         'humidity':{'label':'Humidity', 'type':'svg', 'aside':'yes',
             'visible':function() { return M.qruqsp_weather_main.station.sections.humidity.sensor_ids.length > 0 ? 'yes' : 'no'},
@@ -114,9 +114,9 @@ function qruqsp_weather_main() {
             'visible':function() { return M.qruqsp_weather_main.station.sections.millibars.sensor_ids.length > 0 ? 'yes' : 'no'},
             'dataFields':['millibars'],
             },
-        'wind_kph':{'label':'Wind Speed (kph)', 'type':'svg', 'aside':'no',
-            'visible':function() { return M.qruqsp_weather_main.station.sections.wind_kph.sensor_ids.length > 0 ? 'yes' : 'no'},
-            'dataFields':['wind_kph'],
+        'windspeed':{'label':'Wind Speed (kph)', 'type':'svg', 'aside':'no',
+            'visible':function() { return M.qruqsp_weather_main.station.sections.windspeed.sensor_ids.length > 0 ? 'yes' : 'no'},
+            'dataFields':['windspeed'],
             }, 
     }
     this.station.cellValue = function(s, i, j, d) {
@@ -130,10 +130,10 @@ function qruqsp_weather_main() {
             switch(j) {
                 case 0: return d.name;
                 case 1: return d.sample_date;
-                case 2: return M.formatCelsius(d.celsius,1);
+                case 2: return M.formatTemp(d.temperature,1);
                 case 3: return M.formatHumidity(d.humidity,1);
                 case 4: return M.formatMillibars(d.millibars);
-                case 5: return M.formatWind(d.wind_kph,d.wind_deg);
+                case 5: return M.formatWind(d.windspeed,d.wind_deg);
                 case 6: return M.formatRain(d.rain_mm);
             }
         }
@@ -276,18 +276,18 @@ function qruqsp_weather_main() {
             }
             var p = M.qruqsp_weather_main.station;
             p.data = rsp.station;
-            p.sections.celsius.sensor_ids = [];
+            p.sections.temperature.sensor_ids = [];
             p.sections.humidity.sensor_ids = [];
             p.sections.millibars.sensor_ids = [];
-            p.sections.wind_kph.sensor_ids = [];
+            p.sections.windspeed.sensor_ids = [];
             p.data.svgstyles = '<style>';
-
+            
             for(var i = 0;i < rsp.station.sensors.length; i++) {
                 if( (rsp.station.sensors[i].flags&0x01) == 0x01 ) {
                     continue;
                 }
                 if( (rsp.station.sensors[i].fields&0x01) == 0x01 ) {
-                    p.sections.celsius.sensor_ids.push(rsp.station.sensors[i].id);
+                    p.sections.temperature.sensor_ids.push(rsp.station.sensors[i].id);
                 }
                 if( (rsp.station.sensors[i].fields&0x02) == 0x02 ) {
                     p.sections.humidity.sensor_ids.push(rsp.station.sensors[i].id);
@@ -296,16 +296,16 @@ function qruqsp_weather_main() {
                     p.sections.millibars.sensor_ids.push(rsp.station.sensors[i].id);
                 }
                 if( (rsp.station.sensors[i].fields&0x10) == 0x10 ) {
-                    p.sections.wind_kph.sensor_ids.push(rsp.station.sensors[i].id);
+                    p.sections.windspeed.sensor_ids.push(rsp.station.sensors[i].id);
                 }
-                p.data.svgstyles += 'svg circle.celsius-' + rsp.station.sensors[i].id + ' { fill: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
+                p.data.svgstyles += 'svg circle.temperature-' + rsp.station.sensors[i].id + ' { fill: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
                 p.data.svgstyles += 'svg circle.humidity-' + rsp.station.sensors[i].id + ' { fill: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
                 p.data.svgstyles += 'svg circle.millibars-' + rsp.station.sensors[i].id + ' { fill: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
-                p.data.svgstyles += 'svg circle.wind_kph-' + rsp.station.sensors[i].id + ' { fill: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
-                p.data.svgstyles += 'svg line.celsius-' + rsp.station.sensors[i].id + ' { stroke: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
+                p.data.svgstyles += 'svg circle.windspeed-' + rsp.station.sensors[i].id + ' { fill: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
+                p.data.svgstyles += 'svg line.temperature-' + rsp.station.sensors[i].id + ' { stroke: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
                 p.data.svgstyles += 'svg line.humidity-' + rsp.station.sensors[i].id + ' { stroke: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
                 p.data.svgstyles += 'svg line.millibars-' + rsp.station.sensors[i].id + ' { stroke: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
-                p.data.svgstyles += 'svg line.wind_kph-' + rsp.station.sensors[i].id + ' { stroke: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
+                p.data.svgstyles += 'svg line.windspeed-' + rsp.station.sensors[i].id + ' { stroke: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
             }
             p.data.svgstyles += '</style>';
             p.refresh();
@@ -639,6 +639,21 @@ function qruqsp_weather_main() {
         if( ac == null ) {
             alert('App Error');
             return false;
+        }
+
+        if( M.userSettings['ui-temperature-unit'] != null ) {
+            this.station.sections.sensors.headerValues[2] = 'Temp (' + M.userSettings['ui-temperature-unit'] + ')';
+            this.station.sections.temperature.label = 'Temp (' + M.userSettings['ui-temperature-unit'] + ')';
+        } else {
+            this.station.sections.sensors.headerValues[2] = 'Temp (C)';
+            this.station.sections.temperature.label = 'Temp (C)';
+        }
+        if( M.userSettings['ui-windspeed-units'] != null ) {
+            this.station.sections.sensors.headerValues[5] = 'Wind Speed (' + M.userSettings['ui-windspeed-units'] + ')';
+            this.station.sections.windspeed.label = 'Wind Speed (' + M.userSettings['ui-windspeed-units'] + ')';
+        } else {
+            this.station.sections.sensors.headerValues[5] = 'Wind Speed (kph)';
+            this.station.sections.windspeed.label = 'Wind Speed (kph)';
         }
         
         this.menu.open(cb);

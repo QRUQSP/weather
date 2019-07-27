@@ -24,6 +24,8 @@
 function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'convertTemperature');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'convertWindSpeed');
 
     //
     // Load the tenant settings
@@ -108,7 +110,7 @@ function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
     //
     foreach($sensors as $sid => $sensor) {
         foreach($args['fields'] as $fid => $field) {
-            if( in_array($field, ['celsius', 'humidity', 'millibars', 'wind_kph']) ) {
+            if( in_array($field, ['temperature', 'humidity', 'millibars', 'windspeed']) ) {
                 $sensors[$sid]['min_' . $field] = null;
                 $sensors[$sid]['max_' . $field] = null;
                 if( count($args['fields']) > 1 && $field == 'millibars' ) {
@@ -148,8 +150,14 @@ function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
     $strsql = "SELECT sensor_id, "
         . "FLOOR(UNIX_TIMESTAMP(sample_date)/'" . ciniki_core_dbQuote($ciniki, $args['slice_seconds']) . "') AS slice_id ";
     foreach($args['fields'] as $fid => $field) {
-        if( in_array($field, ['celsius', 'humidity', 'millibars', 'wind_kph']) ) {
-            $strsql .= ", " . $field;
+        if( in_array($field, ['temperature', 'humidity', 'millibars', 'windspeed']) ) {
+            if( $field == 'temperature' ) {
+                $strsql .= ", celsius AS temperature";
+            } elseif( $field == 'windspeed' ) {
+                $strsql .= ", wind_kph AS windspeed";
+            } else {
+                $strsql .= ", " . $field;
+            }
         } else {
             // Remove unrecognized fields
             unset($args['fields'][$fid]);
@@ -192,6 +200,15 @@ function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
 
         foreach($args['fields'] as $field) {
             if( isset($row[$field]) && $row[$field] != null ) {
+                //
+                // Run through user preferences
+                //
+                if( $field == 'temperature' ) {
+                    $row[$field] = ciniki_users_convertTemperature($ciniki, $row[$field]);
+                } elseif( $field == 'windspeed' ) {
+                    $row[$field] = ciniki_users_convertWindSpeed($ciniki, $row[$field]);
+                }
+
                 //
                 // Setup max-min-avg values
                 //
@@ -266,12 +283,13 @@ function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
         }
         $yaxis_left_tick_step = 10;
         $yaxis_left_label_step = 20;
-    } elseif( in_array('celsius', $args['fields']) ) {
-        if( $yaxis_left_min == null || $yaxis_left_min > 0 ) {
-            $yaxis_left_min = 0;
-        } elseif( $yaxis_left_min < 0 ) {
+    } elseif( in_array('temperature', $args['fields']) ) {
+//        if( $yaxis_left_min == null || $yaxis_left_min > 0 ) {
+            //$yaxis_left_min = 0;
+//            $yaxis_left_min = floor($yaxis_left_min/10) * 10;
+//        } elseif( $yaxis_left_min < 0 ) {
             $yaxis_left_min = floor($yaxis_left_min/10) * 10;
-        }
+//        }
         $yaxis_left_max = ceil($yaxis_left_max/10) * 10;
         $yaxis_left_tick_step = 2;
         $yaxis_left_label_step = 10;
@@ -292,7 +310,7 @@ function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
             $yaxis_left_tick_step = 1;
             $yaxis_left_label_step = 1;
         }
-    } elseif( in_array('wind_kph', $args['fields']) ) {
+    } elseif( in_array('windspeed', $args['fields']) ) {
         $yaxis_left_max = ceil($yaxis_left_max/5) * 5;
         $yaxis_left_tick_step = 1;
         $yaxis_left_label_step = 5;

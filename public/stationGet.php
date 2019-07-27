@@ -39,6 +39,9 @@ function qruqsp_weather_stationGet($ciniki) {
         return $rc;
     }
 
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'convertTemperature');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'convertWindSpeed');
+
     //
     // Load tenant settings
     //
@@ -54,6 +57,22 @@ function qruqsp_weather_stationGet($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'datetimeFormat');
     $datetime_format = ciniki_users_datetimeFormat($ciniki, 'php');
 
+    //
+    // Grab the users settings
+    //
+    $temp_units = 'celsius';
+    if( isset($ciniki['session']['user']['settings']['temperature_units']) 
+        && $ciniki['session']['user']['settings']['temperature_units'] != '' 
+        ) {
+        $temp_units = $ciniki['session']['user']['settings']['temperature_units'];
+    }
+    $windspeed_units = 'kph';
+    if( isset($ciniki['session']['user']['settings']['windspeed_units']) 
+        && $ciniki['session']['user']['settings']['windspeed_units'] != '' 
+        ) {
+        $windspeed_units = $ciniki['session']['user']['settings']['windspeed_units'];
+    }
+    
     //
     // Return default for new Station
     //
@@ -94,8 +113,7 @@ function qruqsp_weather_stationGet($ciniki) {
             . "qruqsp_weather_stations.aprs_frequency, "
             . "qruqsp_weather_stations.wu_id, "
             . "qruqsp_weather_stations.wu_key, "
-            . "qruqsp_weather_stations.wu_celsius_sensor_id, "
-            . "qruqsp_weather_stations.wu_humidity_sensor_id, "
+            . "qruqsp_weather_stations.wu_celsius_sensor_id, " . "qruqsp_weather_stations.wu_humidity_sensor_id, "
             . "qruqsp_weather_stations.wu_millibars_sensor_id, "
             . "qruqsp_weather_stations.wu_wind_kph_sensor_id, "
             . "qruqsp_weather_stations.wu_wind_deg_sensor_id, "
@@ -125,6 +143,8 @@ function qruqsp_weather_stationGet($ciniki) {
             return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.8', 'msg'=>'Unable to find Station'));
         }
         $station = $rc['stations'][0];
+        $station['temperature_units'] = $temp_units;
+        $station['windspeed_units'] = $windspeed_units;
 
         $station['details'] = array(
             array('label'=>'Name', 'value'=>$station['name']),
@@ -142,10 +162,10 @@ function qruqsp_weather_stationGet($ciniki) {
             . "sensors.fields, "
 //            . "IFNULL(DATE_FORMAT(data.sample_date, '" . ciniki_core_dbQuote($ciniki, $datetime_format) . "'), '') AS sample_date, "
             . "IFNULL(data.sample_date, '') AS sample_date, "
-            . "IFNULL(data.celsius, '') AS celsius, "
+            . "IFNULL(data.celsius, '') AS temperature, "
             . "IFNULL(data.humidity, '') AS humidity, "
             . "IFNULL(data.millibars, '') AS millibars, "
-            . "IFNULL(data.wind_kph, '') AS wind_kph, "
+            . "IFNULL(data.wind_kph, '') AS windspeed, "
             . "IFNULL(data.wind_deg, '') AS wind_deg, "
             . "IFNULL(data.rain_mm, '') AS rain_mm "
             . "FROM qruqsp_weather_sensors AS sensors "
@@ -166,7 +186,7 @@ function qruqsp_weather_stationGet($ciniki) {
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.weather', array(
             array('container'=>'sensors', 'fname'=>'id', 
                 'fields'=>array('id', 'name', 'flags', 'fields', 'sample_date', 
-                    'celsius', 'humidity', 'millibars', 'wind_kph', 'wind_deg', 'rain_mm'),
+                    'temperature', 'humidity', 'millibars', 'windspeed', 'wind_deg', 'rain_mm'),
                 'utctotz'=>array('sample_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)),
                 ),
             ));
@@ -174,6 +194,16 @@ function qruqsp_weather_stationGet($ciniki) {
             return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.23', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
         }
         $station['sensors'] = isset($rc['sensors']) ? $rc['sensors'] : array();
+        //
+        // Convert units if required
+        //
+        foreach($station['sensors'] as $sid => $sensor) {
+            //
+            // Run through user preferences
+            //
+            $station['sensors'][$sid]['temperature'] = sprintf("%.02f", ciniki_users_convertTemperature($ciniki, $sensor['temperature']));
+            $station['sensors'][$sid]['windspeed'] = sprintf("%.02f", ciniki_users_convertWindSpeed($ciniki, $sensor['windspeed']));
+        }
     }
     
     return array('stat'=>'ok', 'station'=>$station);
