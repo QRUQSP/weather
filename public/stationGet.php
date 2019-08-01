@@ -54,7 +54,11 @@ function qruqsp_weather_stationGet($ciniki) {
     $intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
     $intl_currency = $rc['settings']['intl-default-currency'];
 
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'timeFormat');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'datetimeFormat');
+    $date_format = ciniki_users_dateFormat($ciniki, 'php');
+    $time_format = ciniki_users_timeFormat($ciniki, 'php');
     $datetime_format = ciniki_users_datetimeFormat($ciniki, 'php');
 
     //
@@ -162,6 +166,8 @@ function qruqsp_weather_stationGet($ciniki) {
             . "sensors.fields, "
 //            . "IFNULL(DATE_FORMAT(data.sample_date, '" . ciniki_core_dbQuote($ciniki, $datetime_format) . "'), '') AS sample_date, "
             . "IFNULL(data.sample_date, '') AS sample_date, "
+            . "IFNULL(data.sample_date, '') AS sample_time, "
+            . "IFNULL(data.sample_date, '') AS sample_dt, "
             . "IFNULL(data.celsius, '') AS temperature, "
             . "IFNULL(data.humidity, '') AS humidity, "
             . "IFNULL(data.millibars, '') AS millibars, "
@@ -185,9 +191,13 @@ function qruqsp_weather_stationGet($ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.weather', array(
             array('container'=>'sensors', 'fname'=>'id', 
-                'fields'=>array('id', 'name', 'flags', 'fields', 'sample_date', 
+                'fields'=>array('id', 'name', 'flags', 'fields', 'sample_date', 'sample_time', 'sample_dt',
                     'temperature', 'humidity', 'millibars', 'windspeed', 'wind_deg', 'rain_mm'),
-                'utctotz'=>array('sample_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)),
+                'utctotz'=>array(
+                    'sample_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
+                    'sample_time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format),
+                    'sample_dt'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
+                    ),
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {

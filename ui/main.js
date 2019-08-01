@@ -76,21 +76,10 @@ function qruqsp_weather_main() {
     this.station.station_id = 0;
     this.station.refreshTimer = null;
     this.station.sections = {
-//        'details':{'label':'Station', 'type':'simplegrid', 'num_cols':2, 'aside':'yes',
-//            'cellClasses':['label', ''],
-//            },
-//        '_tabs':{'label':'', 'type':'paneltabs', 'selected':'sensors', 'tabs':{
-//            'sensors':{'label':'Sensors', 'fn':'M.qruqsp_weather_main.station.switchTab("sensors");'},
-//            'graphs':{'label':'Graphs', 'fn':'M.qruqsp_weather_main.station.switchTab("graphs");'},
-//            'historical':
-//            }},
-//        'wu_details':{'label':'Weather Underground', 'type':'simplegrid', 'num_cols':2, 'aside':'yes',
-//            'visible':function() {return (M.qruqsp_weather_main.station.data.flags&0x04) == 0x04 ? 'yes' : 'no';},
-//            },
-        'sensors':{'label':'Sensors', 'type':'simplegrid', 'num_cols':7, 'aside':'full',
-            'headerValues':['Name', 'Last Reading', 'Temp', 'Humidity', 'Pressure', 'Wind', 'Rain'],
-            'headerClasses':['', '', 'aligncenter', 'aligncenter', 'aligncenter', 'aligncenter', 'aligncenter'],
-            'cellClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
+        'sensors':{'label':'Sensors', 'type':'simplegrid', 'compact_split_at':3, 'num_cols':8, 'aside':'full',
+            'headerValues':['Name', '', 'Last Updated', 'Temp', 'Humidity', 'Pressure', 'Wind', 'Rain'],
+            'headerClasses':['', '', '', 'aligncenter', 'aligncenter', 'aligncenter', 'aligncenter', 'aligncenter'],
+            'cellClasses':['', '', 'multiline', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
             },
         'svgstyles':{'label':'', 'visible':'hidden', 'type':'html'},
         '_tabs':{'label':'', 'type':'menutabs', 'selected':'60', 'tabs':{
@@ -128,13 +117,16 @@ function qruqsp_weather_main() {
         }
         if( s == 'sensors' ) {
             switch(j) {
-                case 0: return d.name;
-                case 1: return d.sample_date;
-                case 2: return M.formatTemp(d.temperature,1);
-                case 3: return M.formatHumidity(d.humidity,1);
-                case 4: return M.formatMillibars(d.millibars);
-                case 5: return M.formatWind(d.windspeed,d.wind_deg);
-                case 6: return M.formatRain(d.rain_mm);
+                //case 0: return '<span class="colourswatch" style="background-color: ' + M.qruqsp_weather_main.sensor_colors[i] + ';">&nbsp;</span>';
+//                case 1: return '<span class="maintext">' + d.name + '</span><span class="subtext">' + d.sample_date + '</span>';
+                case 0: return '<span class="colourswatch" style="background-color: ' + M.qruqsp_weather_main.sensor_colors[i] + ';">&nbsp;</span>&nbsp;&nbsp;' + d.name;
+//                case 1: return d.name;
+                case 2: return '<span class="maintext">' + d.sample_time + '</span><span class="subtext">' + d.sample_date + '</span>';
+                case 3: return M.formatTemp(d.temperature,1);
+                case 4: return M.formatHumidity(d.humidity,1);
+                case 5: return M.formatMillibars(d.millibars);
+                case 6: return M.formatWind(d.windspeed,d.wind_deg);
+                case 7: return M.formatRain(d.rain_mm);
             }
         }
     }
@@ -330,11 +322,6 @@ function qruqsp_weather_main() {
     }
     this.station.update = function() {
         this.end_ts = Math.floor(Date.now()/(1000*this.slice_seconds)) * this.slice_seconds;
-        // 720 is a good width for the graph that works well on most screens
-        // 720 is the number of minutes in half a day
-        // When slice_seconds is 60, then graph shows half day
-        // when slice_seconds is 120, then graphs shows 1 day
-        // when slice_seconds is 840, then graphs shows 1 week
         this.start_ts = this.end_ts - (this.slice_seconds * 720);
         if( this.start_ts == this.end_ts ) {
             this.end_ts = this.start_ts + this.slice_seconds;
@@ -368,7 +355,6 @@ function qruqsp_weather_main() {
     this.editstation.sections = {
         'general':{'label':'', 'fields':{
             'name':{'label':'Name', 'required':'yes', 'type':'text'},
-//            'flags':{'label':'Options', 'type':'text'},
             'latitude':{'label':'Latitude', 'type':'text'},
             'longitude':{'label':'Longitude', 'type':'text'},
             'altitude':{'label':'Altitude', 'type':'text'},
@@ -642,17 +628,17 @@ function qruqsp_weather_main() {
         }
 
         if( M.userSettings['ui-temperature-unit'] != null ) {
-            this.station.sections.sensors.headerValues[2] = 'Temp (' + M.userSettings['ui-temperature-unit'] + ')';
+            this.station.sections.sensors.headerValues[3] = 'Temp (' + M.userSettings['ui-temperature-unit'] + ')';
             this.station.sections.temperature.label = 'Temp (' + M.userSettings['ui-temperature-unit'] + ')';
         } else {
-            this.station.sections.sensors.headerValues[2] = 'Temp (C)';
+            this.station.sections.sensors.headerValues[3] = 'Temp (C)';
             this.station.sections.temperature.label = 'Temp (C)';
         }
         if( M.userSettings['ui-windspeed-units'] != null ) {
-            this.station.sections.sensors.headerValues[5] = 'Wind Speed (' + M.userSettings['ui-windspeed-units'] + ')';
+            this.station.sections.sensors.headerValues[6] = 'Wind Speed (' + M.userSettings['ui-windspeed-units'] + ')';
             this.station.sections.windspeed.label = 'Wind Speed (' + M.userSettings['ui-windspeed-units'] + ')';
         } else {
-            this.station.sections.sensors.headerValues[5] = 'Wind Speed (kph)';
+            this.station.sections.sensors.headerValues[6] = 'Wind Speed (kph)';
             this.station.sections.windspeed.label = 'Wind Speed (kph)';
         }
         
