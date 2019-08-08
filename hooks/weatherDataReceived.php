@@ -149,12 +149,6 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
         if( $dt->format('Y-m-d H:i:s') != $sensor['last_sample_date'] ) {
             $update_args['last_sample_date'] = $dt->format('Y-m-d H:i:s');
         }
-        if( count($update_args) > 0 ) {
-            $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'qruqsp.weather.sensor', $sensor['id'], $update_args, 0x04);
-            if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.15', 'msg'=>'Unable to update sensor', 'err'=>$rc['err']));
-            }
-        }
     } else {
         //
         // Setup sensor 
@@ -252,6 +246,16 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     $rc = ciniki_core_dbInsert($ciniki, $strsql, 'qruqsp.weather');
     if( $rc['stat'] != 'ok' && $rc['stat'] != 'exists' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.16', 'msg'=>'Unable to add data sample', 'err'=>$rc['err']));
+    }
+
+    //
+    // Check if there was an update to the sensor
+    //
+    if( isset($update_args) && count($update_args) > 0 ) {
+        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'qruqsp.weather.sensor', $sensor['id'], $update_args, 0x04);
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.15', 'msg'=>'Unable to update sensor', 'err'=>$rc['err']));
+        }
     }
 
     //
