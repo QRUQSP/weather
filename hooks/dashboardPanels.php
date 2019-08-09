@@ -29,6 +29,12 @@ function qruqsp_weather_hooks_dashboardPanels(&$ciniki, $tnid, $args) {
         ) {
         $windspeed_units = $ciniki['session']['user']['settings']['windspeed_units'];
     }
+    $pressure_units = 'mbar';
+    if( isset($ciniki['session']['user']['settings']['pressure_units']) 
+        && $ciniki['session']['user']['settings']['pressure_units'] != '' 
+        ) {
+        $pressure_units = $ciniki['session']['user']['settings']['pressure_units'];
+    }
 
     $dial_types = array(
         'temphum1' => 'Temperature', 
@@ -86,10 +92,10 @@ function qruqsp_weather_hooks_dashboardPanels(&$ciniki, $tnid, $args) {
     }
     for($i = 1; $i <= 12; $i++) {
         for($j = $i; $j <= 12; $j++) {
-            $optionArrays[$j]["o{$i}name"] = array('label'=>"Dial {$i} Name", 'type'=>'text');
+            $optionArrays[$j]["o{$i}name"] = array('label'=>"Dial {$i} Name", 'type'=>'text', 'separator'=>'yes');
             $optionArrays[$j]["o{$i}type"] = array('label'=>"Type", 'type'=>'select', 
                 'options'=>$dial_types, 
-                'onchange'=>"M.qruqsp_dashboard_main.panel.refreshFields(['o{$i}t','o{$i}h','o{$i}ws','o{$i}wd']);",
+                'onchange'=>"M.qruqsp_dashboard_main.panel.refreshFields(['o{$i}tu','o{$i}t','o{$i}h','o{$i}wu', 'o{$i}ws','o{$i}wd','o{$i}pu','o{$i}p']);",
                 );
             $optionArrays[$j]["o{$i}tu"] = array('label'=>"Units", 'type'=>'toggle', 
                 'toggles'=>array('celsius'=>'Celsuis', 'fahrenheit'=>'Fahrenheit'), 'default'=>$temp_units, 
@@ -103,13 +109,20 @@ function qruqsp_weather_hooks_dashboardPanels(&$ciniki, $tnid, $args) {
                 );
             $optionArrays[$j]["o{$i}wu"] = array('label'=>"Units", 'type'=>'toggle', 
                 'toggles'=>array('kph'=>'kph', 'mph'=>'mph'), 'default'=>$windspeed_units, 
-                'vfield'=>"o{$i}type", 'vshow'=>array('wind1'), 'vdefault'=>'yes',
+                'vfield'=>"o{$i}type", 'vshow'=>array('wind1'), 'vdefault'=>'no',
                 );
             $optionArrays[$j]["o{$i}ws"] = array('label'=>"Wind Speed Sensor", 'type'=>'select', 
                 'options'=>$windspeed_sensors, 'vfield'=>"o{$i}type", 'vshow'=>array('wind1'), 'vdefault'=>'no',
                 );
             $optionArrays[$j]["o{$i}wd"] = array('label'=>"Wind Direction Sensor", 'type'=>'select', 
                 'options'=>$winddir_sensors, 'vfield'=>"o{$i}type", 'vshow'=>array('wind1'), 'vdefault'=>'no',
+                );
+            $optionArrays[$j]["o{$i}pu"] = array('label'=>"Units", 'type'=>'toggle', 
+                'toggles'=>array('mbar'=>'mbar/hPa', 'mmhg'=>'mmHg'), 'default'=>$pressure_units, 
+                'vfield'=>"o{$i}type", 'vshow'=>array('baro1'), 'vdefault'=>'no',
+                );
+            $optionArrays[$j]["o{$i}p"] = array('label'=>"Pressure Sensor", 'type'=>'select', 
+                'options'=>$pressure_sensors, 'vfield'=>"o{$i}type", 'vshow'=>array('baro1'), 'vdefault'=>'no',
                 );
         }
     }

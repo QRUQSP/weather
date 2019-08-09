@@ -36,7 +36,7 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
     $sensor_ids = array();
     foreach($panel['settings'] as $k => $v) {
         for($i = 1; $i <= $num_dials; $i++ ) {
-            if( in_array($k, ["o{$i}t", "o{$i}h", "o{$i}ws", "o{$i}wd"]) && !in_array($v, $sensor_ids) ) {
+            if( in_array($k, ["o{$i}t", "o{$i}h", "o{$i}ws", "o{$i}wd", "o{$i}p"]) && !in_array($v, $sensor_ids) ) {
                 $sensor_ids[] = $v;
             }
         }
@@ -97,6 +97,18 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
             $panel['data']["o{$i}t"] = '?';
         }
         $panel['data']["o{$i}h"] = (isset($sensors[$panel['settings']["o{$i}h"]]['humidity']) ? round($sensors[$panel['settings']["o{$i}h"]]['humidity']) : '?');
+        if( isset($panel['settings']["o{$i}p"]) && isset($sensors[$panel['settings']["o{$i}p"]]['millibars']) ) {
+            if( isset($panel['settings']["o{$i}pu"]) && $panel['settings']["o{$i}pu"] == 'mmhg' ) {
+                $panel['data']["o{$i}p"] = round($sensors[$panel['settings']["o{$i}p"]]['millibars'] * 0.75006);
+                $panel['data']["o{$i}pa"] = (($panel['data']["o{$i}p"] - 720) * 3.75) + 90 + 28.75;
+            } else {
+                $panel['data']["o{$i}pa"] = (($sensors[$panel['settings']["o{$i}p"]]['millibars'] - 960) * 2.75) + 90 + 28.75;
+                $panel['data']["o{$i}p"] = round($sensors[$panel['settings']["o{$i}p"]]['millibars']) + 17;
+            }
+        } else {
+            $panel['data']["o{$i}p"] = '?';
+            $panel['data']["o{$i}pa"] = 0;
+        }
         if( isset($sensors[$panel['settings']["o{$i}ws"]]['windspeed']) ) {
             if( isset($panel['settings']["o{$i}wu"]) && $panel['settings']["o{$i}wu"] == 'mph' ) {
                 $panel['data']["o{$i}ws"] = round($sensors[$panel['settings']["o{$i}ws"]]['windspeed'] * 0.62137);
@@ -106,7 +118,7 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
         } else {
             $panel['data']["o{$i}ws"] = '?';
         }
-        $panel['data']["o{$i}wd"] = (isset($sensors[$panel['settings']["o{$i}wd"]]['wind_deg']) ? round($sensors[$panel['settings']["o{$i}wd"]]['wind_deg']) : '?');
+        $panel['data']["o{$i}wd"] = (isset($sensors[$panel['settings']["o{$i}wd"]]['wind_deg']) ? $sensors[$panel['settings']["o{$i}wd"]]['wind_deg'] : '?');
 
     }
     if( isset($args['action']) && $args['action'] == 'update' ) {
@@ -121,25 +133,98 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
         $cx = 100;
         $cy = 20;
         if( $panel['settings']["o{$i}type"] == 'wind1' ) {
-            if( isset($panel['data']["o{$i}wd"]) && $panel['data']["o{$i}wd"] > 0 ) {
-                $angle = ($panel['data']["o{$i}wd"] - 90) * 0.0174532925;
-                $x1 = 100 + (60 * cos($angle));
-                $y1 = 100 + (60 * sin($angle));
-                $x2 = 100 + (95 * cos($angle-0.1));
-                $y2 = 100 + (95 * sin($angle-0.1));
-                $x3 = 100 + (95 * cos($angle+0.1));
-                $y3 = 100 + (95 * sin($angle+0.1));
+            $angle = 0;
+            if( isset($panel['data']["o{$i}wd"]) && $panel['data']["o{$i}wd"] != '' ) {
+                $angle = $panel['data']["o{$i}wd"];
             }
             $panel['content'] .= '<svg viewBox="0 0 200 200">'
-                . "<circle cx='100' cy='100' r='80' fill='none' stroke='#aaa' stroke-width='4' stroke-dasharray='1,6.854' transform='rotate(-0.35)'/>"
-                . "<circle cx='100' cy='100' r='80' fill='none' stroke='#fff' stroke-width='12' stroke-dasharray='1,61.832' transform='rotate(-0.35)' />"
-                . "<text x='100' y='55' width='100' height='12' font-size='12' fill='#ddd'><tspan text-anchor='middle'>"
+                // Add tick marks
+                . "<circle cx='100' cy='100' r='80' fill='none' stroke='#aaa' stroke-width='4' stroke-dasharray='1,6.854' transform='rotate(-0.35 100 100)'/>"
+                . "<circle cx='100' cy='100' r='80' fill='none' stroke='#fff' stroke-width='12' stroke-dasharray='1,61.832' transform='rotate(-0.35 100 100)' />"
+                // Add tick labels
+                . "<text x='165' y='101' width='10' height='10' font-size='10' fill='#888'>"
+                    . "<tspan alignment-baseline='middle' text-anchor='middle'>E</tspan></text>"
+                . "<text x='100' y='167' width='10' height='10' font-size='10' fill='#888'>"
+                    . "<tspan alignment-baseline='middle' text-anchor='middle'>S</tspan></text>"
+                . "<text x='35' y='101' width='10' height='10' font-size='10' fill='#888'>"
+                    . "<tspan alignment-baseline='middle' text-anchor='middle'>W</tspan></text>"
+                . "<text x='100' y='35' width='10' height='10' font-size='10' fill='#888'>"
+                    . "<tspan alignment-baseline='middle' text-anchor='middle'>N</tspan></text>"
+                // Add label at top
+                . "<text x='100' y='60' width='100' height='12' font-size='12' fill='#bbb'><tspan text-anchor='middle'>"
                     . (isset($panel['settings']["o{$i}name"]) ? $panel['settings']["o{$i}name"] : '')
                     . "</tspan></text>"
-                . "<text x='100' y='126' width='100' height='100' font-size='80' fill='white'><tspan id='panel-{$panel['id']}-o{$i}ws' text-anchor='middle'>"
+                // Add middle text
+                . "<text x='100' y='108' width='100' height='100' font-size='80' fill='white'><tspan id='panel-{$panel['id']}-o{$i}ws' alignment-baseline='middle' text-anchor='middle'>"
                     . (isset($panel['data']["o{$i}ws"]) ? $panel['data']["o{$i}ws"] : '?')
                     . "</tspan></text>"
-                . "<path id='panel-{$panel['id']}-o{$i}wd' d='M{$x1} {$y1} L{$x2} {$y2} L{$x3} {$y3} Z' fill='#09ff00' stroke='white' stroke-width='1'/>"
+                // Add units text
+                . "<text x='100' y='145' width='100' height='12' font-size='10' fill='#888'><tspan text-anchor='middle'>"
+                    . (isset($panel['settings']["o{$i}wu"]) ? $panel['settings']["o{$i}wu"] : '')
+                    . "</tspan></text>"
+                // Add arrow
+//                . "<path id='panel-{$panel['id']}-o{$i}wd' d='M100 40 L90 5 L110 5 Z' fill='rgba(9,255,0,0.65)' stroke='white' stroke-width='0.5' transform='rotate($angle 100 100)' />"
+                . "<path id='panel-{$panel['id']}-o{$i}wd' d='M100 38 L90 7 L110 7 Z' fill='rgba(9,255,0,0.65)' stroke='white' stroke-width='0.5' transform='rotate($angle 100 100)' />"
+                . "</svg>"
+                . "</div>";
+
+        } elseif( $panel['settings']["o{$i}type"] == 'baro1' ) {
+            $x1 = 100 + (80 * cos(65 * 0.0174532925));
+            $y1 = 100 + (80 * sin(65 * 0.0174532925));
+            $x2 = 100 + (80 * cos(115 * 0.0174532925));
+            $y2 = 100 + (80 * sin(115 * 0.0174532925));
+            // Major ticks every 27.5 degrees
+            $panel['content'] .= '<svg viewBox="0 0 200 200">';
+            if( isset($panel['settings']["o{$i}pu"]) && $panel['settings']["o{$i}pu"] == 'mmhg' ) {
+                $start_tick = 720;
+                $end_tick = 800;
+                $multiplier = 3.75;
+            } else {
+                $start_tick = 960;
+                $end_tick = 1070;
+                $multiplier = 2.75;
+            }
+            for($y = $start_tick; $y <= $end_tick; $y++) {
+                $tick_angle = (($y - $start_tick) * $multiplier) + 90 + 28.75;
+                if( ($y%10) == 0 ) {
+                    $x1 = 100 + (74 * cos($tick_angle * 0.0174532925));
+                    $y1 = 100 + (74 * sin($tick_angle * 0.0174532925));
+                    $x2 = 100 + (86 * cos($tick_angle * 0.0174532925));
+                    $y2 = 100 + (86 * sin($tick_angle * 0.0174532925));
+                    $panel['content'] .= "<line x1='{$x1}' y1='{$y1}' x2='{$x2}' y2='{$y2}' stroke='#fff' stroke-width='1' />";
+                } elseif( ($y%2) == 0 ) {
+                    $x1 = 100 + (78 * cos($tick_angle * 0.0174532925));
+                    $y1 = 100 + (78 * sin($tick_angle * 0.0174532925));
+                    $x2 = 100 + (82 * cos($tick_angle * 0.0174532925));
+                    $y2 = 100 + (82 * sin($tick_angle * 0.0174532925));
+                    $panel['content'] .= "<line x1='{$x1}' y1='{$y1}' x2='{$x2}' y2='{$y2}' stroke='#aaa' stroke-width='1' />";
+                }
+                if( ($y%20) == 0 ) {
+                    $x1 = 100 + (62 * cos($tick_angle * 0.0174532925));
+                    $y1 = 100 + (62 * sin($tick_angle * 0.0174532925));
+                    if( $y == 1040 ) {
+                        $x1 -= 3;
+                        $y1 -= 5;
+                    }
+                    $panel['content'] .= "<text x='{$x1}' y='{$y1}' width='10' height='10' font-size='10' fill='#888'><tspan alignment-baseline='middle' text-anchor='middle'>{$y}</tspan></text>";
+                }
+            }
+            // Add barometer dot
+            $panel['content'] .= "<circle id='panel-{$panel['id']}-o{$i}pd' cx='180' cy='100' r='12' "
+                    . "fill='rgba(0,105,255,0.65)' stroke='white' stroke-width='0.5' "
+                    . "transform='rotate({$panel['data']["o{$i}pa"]},100,100)' />"
+                // Add label
+                . "<text x='100' y='70' width='100' height='12' font-size='12' fill='#bbb'><tspan text-anchor='middle'>"
+                . (isset($panel['settings']["o{$i}name"]) ? $panel['settings']["o{$i}name"] : '')
+                . "</tspan></text>"
+                // Add center text
+                . "<text x='100' y='105' width='100' height='100' font-size='50' fill='white'><tspan id='panel-{$panel['id']}-o{$i}p' alignment-baseline='middle' text-anchor='middle'>"
+                    . (isset($panel['data']["o{$i}p"]) ? $panel['data']["o{$i}p"] : '?')
+                    . "</tspan></text>"
+                // Add units text
+                . "<text x='100' y='135' width='100' height='12' font-size='10' fill='#888'><tspan text-anchor='middle'>"
+                    . (isset($panel['settings']["o{$i}pu"]) ? $panel['settings']["o{$i}pu"] : '')
+                    . "</tspan></text>"
                 . "</svg>"
                 . "</div>";
 
@@ -150,20 +235,37 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
                 $cy = 100 + (80 * sin($angle));
             }
             $panel['content'] .= '<svg viewBox="0 0 200 200">'
-                . "<circle cx='100' cy='100' r='80' fill='none' stroke='#aaa' stroke-width='4' stroke-dasharray='1,6.854' transform='rotate(-0.35)'/>"
-                . "<circle cx='100' cy='100' r='80' fill='none' stroke='#fff' stroke-width='12' stroke-dasharray='1,124.664' transform='rotate(-0.35)' />"
-                . "<text x='100' y='55' width='100' height='12' font-size='12' fill='#ddd'><tspan text-anchor='middle'>"
+                // Add tick marks
+                . "<circle cx='100' cy='100' r='80' fill='none' stroke='#aaa' stroke-width='4' stroke-dasharray='1,6.854' transform='rotate(-0.35 100 100)'/>"
+                . "<circle cx='100' cy='100' r='80' fill='none' stroke='#fff' stroke-width='12' stroke-dasharray='1,124.664' transform='rotate(-0.35 100 100)' />"
+                // Add tick labels
+                . "<text x='160' y='101' width='10' height='10' font-size='10' fill='#888'>"
+                    . "<tspan alignment-baseline='middle' text-anchor='middle'>25%</tspan></text>"
+                . "<text x='100' y='167' width='10' height='10' font-size='10' fill='#888'>"
+                    . "<tspan alignment-baseline='middle' text-anchor='middle'>50%</tspan></text>"
+                . "<text x='40' y='101' width='10' height='10' font-size='10' fill='#888'>"
+                    . "<tspan alignment-baseline='middle' text-anchor='middle'>75%</tspan></text>"
+                . "<text x='100' y='35' width='10' height='10' font-size='10' fill='#888'>"
+                    . "<tspan alignment-baseline='middle' text-anchor='middle'>100%</tspan></text>"
+                // Add label text
+                . "<text x='100' y='60' width='100' height='12' font-size='12' fill='#bbb'><tspan text-anchor='middle'>"
                     . (isset($panel['settings']["o{$i}name"]) ? $panel['settings']["o{$i}name"] : '')
                     . "</tspan></text>"
-                . "<text x='100' y='126' width='100' height='100' font-size='80' fill='white'><tspan id='panel-{$panel['id']}-o{$i}t' text-anchor='middle'>"
+                // Add temperature
+                . "<text x='100' y='108' width='100' height='100' font-size='80' fill='white'><tspan id='panel-{$panel['id']}-o{$i}t' alignment-baseline='middle' text-anchor='middle'>"
                     . (isset($panel['data']["o{$i}t"]) ? $panel['data']["o{$i}t"] : '?')
                     . "</tspan></text>"
-                . "<circle id='panel-{$panel['id']}-o{$i}hc' cx='{$cx}' cy='{$cy}' r='16' fill='yellow' stroke='white' stroke-width='1'/>"
-                . "<text x='{$cx}' y='" . ($cy+6) . "' width='20' height='20' font-size='20' fill='black'>"
-                    . "<tspan id='panel-{$panel['id']}-o{$i}h' text-anchor='middle'>"
+                // Add humidity circle & value
+                . "<circle id='panel-{$panel['id']}-o{$i}hc' cx='{$cx}' cy='{$cy}' r='12' fill='rgba(255,200,0,0.75)' stroke='#fff' stroke-width='0.5'/>"
+                . "<text x='{$cx}' y='" . ($cy+1) . "' width='20' height='20' font-size='15' fill='black'>"
+                    . "<tspan id='panel-{$panel['id']}-o{$i}h' alignment-baseline='middle' text-anchor='middle'>"
                         . (isset($panel['data']["o{$i}h"]) ? $panel['data']["o{$i}h"] : '?')
                         . "</tspan>"
                     . "</text>"
+                // Add units text
+                . "<text x='100' y='145' width='100' height='12' font-size='10' fill='#888'><tspan text-anchor='middle'>"
+                    . (isset($panel['settings']["o{$i}tu"]) ? strtoupper($panel['settings']["o{$i}tu"][0]) : '')
+                    . "</tspan></text>"
                 . "</svg>"
                 . "</div>";
         }
@@ -236,6 +338,11 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
             $update_js .= "if( data.o{$i}wd != null ) {"
                 . "this.setWOrbit('o{$i}wd', data.o{$i}wd);"
                 . "};";
+        } elseif( $panel['settings']["o{$i}type"] == 'baro1' ) {
+            $update_js .= "if( data.o{$i}p != null ) {"
+                . "db_setInnerHtml(this,'o{$i}p', data.o{$i}p);"
+                . "this.setPOrbit('o{$i}pd', data.o{$i}pa);"
+                . "};";
         }
     }
     
@@ -243,22 +350,21 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
         'setHOrbit' => "function(i,v) {"
             . "var txt = db_ge(this,i);"
             . "var circle = db_ge(this,i + 'c');"
-            . "var a = (((v/100)*360)-90)*0.0174532925;"
-            . "circle.setAttributeNS(null,'cx',100 + (80 * Math.cos(a)));"
-            . "circle.setAttributeNS(null,'cy',100 + (80 * Math.sin(a)));"
-            . "txt.parentNode.setAttributeNS(null,'x',100 + (80 * Math.cos(a)));"
-            . "txt.parentNode.setAttributeNS(null,'y',106 + (80 * Math.sin(a)));"
             . "txt.textContent = v;"
-            . "};",
+            . "if(v!='?'){"
+                . "var a = (((v/100)*360)-90)*0.0174532925;"
+                . "circle.setAttributeNS(null,'cx',100 + (80 * Math.cos(a)));"
+                . "circle.setAttributeNS(null,'cy',100 + (80 * Math.sin(a)));"
+                . "txt.parentNode.setAttributeNS(null,'x',100 + (80 * Math.cos(a)));"
+                . "txt.parentNode.setAttributeNS(null,'y',101 + (80 * Math.sin(a)));"
+            . "}};",
         'setWOrbit' => "function(i,v) {"
-            . "var txt = db_ge(this,i);"
             . "var arrow = db_ge(this,i);"
-            . "var a = (v-90)*0.0174532925;"
-            . "arrow.setAttributeNS(null,'d', "
-                . "'M' + (100 + (60 * Math.cos(a))) + ' ' + (100 + (60 * Math.sin(a)))"
-                . " + ' L' + (100 + (95 * Math.cos(a-0.1))) + ' ' + (100 + (95 * Math.sin(a-0.1)))"
-                . " + ' L' + (100 + (95 * Math.cos(a+0.1))) + ' ' + (100 + (95 * Math.sin(a+0.1)))"
-                . " + ' Z');"
+            . "arrow.setAttributeNS(null,'transform', 'rotate('+v+',100,100)');"
+            . "};",
+        'setPOrbit' => "function(i,v) {"
+            . "var dot = db_ge(this,i);"
+            . "dot.setAttributeNS(null,'transform', 'rotate('+v+',100,100)');"
             . "};",
         'update_args' => "function() {};",
         'update' => "function(data) {"
