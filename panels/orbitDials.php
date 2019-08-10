@@ -103,7 +103,7 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
                 $panel['data']["o{$i}pa"] = (($panel['data']["o{$i}p"] - 720) * 3.75) + 90 + 28.75;
             } else {
                 $panel['data']["o{$i}pa"] = (($sensors[$panel['settings']["o{$i}p"]]['millibars'] - 960) * 2.75) + 90 + 28.75;
-                $panel['data']["o{$i}p"] = round($sensors[$panel['settings']["o{$i}p"]]['millibars']) + 17;
+                $panel['data']["o{$i}p"] = round($sensors[$panel['settings']["o{$i}p"]]['millibars']);
             }
         } else {
             $panel['data']["o{$i}p"] = '?';
