@@ -168,6 +168,7 @@ function qruqsp_weather_wuSubmit(&$ciniki, $tnid, $station_id) {
             $sensor_args .= sprintf("&baromin=%.02f", ($sensor['millibars'] * 0.029530));
         }
         if( $sensor['id'] == $station['wu_wind_kph_sensor_id'] ) {
+            // Convert to mph
             $sensor_args .= sprintf("&windspeedmph=%.1f", ($sensor['wind_kph']/1.60934));
         } 
         if( $sensor['id'] == $station['wu_wind_deg_sensor_id'] ) {

@@ -207,6 +207,8 @@ function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
                     $row[$field] = ciniki_users_convertTemperature($ciniki, $row[$field]);
                 } elseif( $field == 'windspeed' ) {
                     $row[$field] = ciniki_users_convertWindSpeed($ciniki, $row[$field]);
+                } elseif( $field == 'millibars' && $row[$field] == 0 ) {
+                    continue;  
                 }
 
                 //
@@ -254,14 +256,14 @@ function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
     foreach($sensors as $sid => $sensor) {
         foreach($args['fields'] as $fid => $field) {
             if( $field == 'millibars' && $yaxis_right == 'yes' ) {
-                if( $yaxis_right_min == null || $sensor['min_' . $field] < $yaxis_right_min ) {
+                if( $yaxis_right_min == null || (isset($sensor['min_' . $field]) && $sensor['min_' . $field] < $yaxis_right_min) ) {
                     $yaxis_right_min = $sensor['min_' . $field];
                 }
                 if( $yaxis_right_max == null || $sensor['max_' . $field] > $yaxis_right_max ) {
                     $yaxis_right_max = $sensor['max_' . $field];
                 }
             } else {
-                if( $yaxis_left_min == null || $sensor['min_' . $field] < $yaxis_left_min ) {
+                if( $yaxis_left_min == null || (isset($sensor['min_' . $field]) && $sensor['min_' . $field] < $yaxis_left_min) ) {
                     $yaxis_left_min = $sensor['min_' . $field];
                 }
                 if( $yaxis_left_max == null || $sensor['max_' . $field] > $yaxis_left_max ) {
@@ -284,12 +286,11 @@ function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
         $yaxis_left_tick_step = 10;
         $yaxis_left_label_step = 20;
     } elseif( in_array('temperature', $args['fields']) ) {
-//        if( $yaxis_left_min == null || $yaxis_left_min > 0 ) {
-            //$yaxis_left_min = 0;
-//            $yaxis_left_min = floor($yaxis_left_min/10) * 10;
-//        } elseif( $yaxis_left_min < 0 ) {
+        if( $yaxis_left_min == null ) {
+            $yaxis_left_min = 0;
+        } else {
             $yaxis_left_min = floor($yaxis_left_min/10) * 10;
-//        }
+        }
         $yaxis_left_max = ceil($yaxis_left_max/10) * 10;
         $yaxis_left_tick_step = 2;
         $yaxis_left_label_step = 10;
@@ -332,7 +333,11 @@ function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
         $yaxis_right_max = $args['yaxis_right_max'];
     }
 
-    $y_left_scale = ($graph_height/($yaxis_left_max-$yaxis_left_min));
+    if( ($yaxis_left_max - $yaxis_left_min) != 0 ) {
+        $y_left_scale = ($graph_height/($yaxis_left_max-$yaxis_left_min));
+    } else {
+        $y_left_scale = 10;
+    }
     if( $yaxis_right == 'yes' ) {
         $y_right_scale = ($graph_height/($yaxis_right_max-$yaxis_right_min));
     }
@@ -355,7 +360,7 @@ function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
                 //
                 // Skip when no data 
                 //
-                if( !isset($slice['sensors'][$sid]['max_' . $field]) && $slice['sensors'][$sid]['max_' . $field] != null ) {
+                if( !isset($slice['sensors'][$sid]['max_' . $field]) || $slice['sensors'][$sid]['max_' . $field] == null ) {
                     continue;
                 }
                 // 
@@ -405,11 +410,6 @@ function qruqsp_weather_svgLoad($ciniki, $tnid, $args) {
                     . "fill='{$xaxis_line_color}'>"
                     . "<tspan text-anchor='middle' class='xlabel'>" . $dt->format('M d') . "<tspan>"
                     . "</text>";
- /*                   $slices .= "<text x='1' y='" . ($graph_bottom+12+$xaxis_font_size+$xaxis_font_size) . "' "
-                        . "font-size='" . ($xaxis_font_size-2) . "' "
-                        . "fill='{$xaxis_line_color}'>"
-                        . "<tspan text-anchor='middle' class='xlabel'>" . $dt->format('H:i') . "<tspan>"
-                        . "</text>"; */
             } elseif( $args['slice_seconds'] > 60 ) {
                 $slices .= "<text x='1' y='" . ($graph_bottom+10+$xaxis_font_size) . "' "
                     . "font-size='{$xaxis_font_size}' "

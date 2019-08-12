@@ -106,7 +106,7 @@ function qruqsp_weather_main() {
         'windspeed':{'label':'Wind Speed (kph)', 'type':'svg', 'aside':'no',
             'visible':function() { return M.qruqsp_weather_main.station.sections.windspeed.sensor_ids.length > 0 ? 'yes' : 'no'},
             'dataFields':['windspeed'],
-            }, 
+            },  
     }
     this.station.cellValue = function(s, i, j, d) {
         if( s == 'details' ) {
