@@ -31,6 +31,12 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
     $panel = $args['panel'];
 
     //
+    // Make sure the sample date is within the last 5 minutes
+    //
+    $age_dt = new DateTime('now', new DateTimezone('UTC'));
+    $age_dt->sub(new DateInterval('PT6M'));
+
+    //
     // Get the current temp/humidity for the sensors
     //
     $sensor_ids = array();
@@ -63,6 +69,7 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
                 . ") "
             . "WHERE sensors.id IN (" . ciniki_core_dbQuoteIDs($ciniki, $sensor_ids) . ") "
             . "AND sensors.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "AND sensors.last_sample_date > '" . ciniki_core_dbQuote($ciniki, $age_dt->format('Y-m-d H:i:s')) . "' "
             . "ORDER BY sensors.id ";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
         $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'qruqsp.weather', array(
