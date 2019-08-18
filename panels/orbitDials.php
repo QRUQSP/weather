@@ -245,15 +245,6 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
                 // Add tick marks
                 . "<circle cx='100' cy='100' r='80' fill='none' stroke='#aaa' stroke-width='4' stroke-dasharray='1,6.854' transform='rotate(-0.35 100 100)'/>"
                 . "<circle cx='100' cy='100' r='80' fill='none' stroke='#fff' stroke-width='12' stroke-dasharray='1,124.664' transform='rotate(-0.35 100 100)' />"
-                // Add tick labels
-                . "<text x='160' y='101' width='10' height='10' font-size='10' fill='#888'>"
-                    . "<tspan alignment-baseline='middle' text-anchor='middle'>25%</tspan></text>"
-                . "<text x='100' y='167' width='10' height='10' font-size='10' fill='#888'>"
-                    . "<tspan alignment-baseline='middle' text-anchor='middle'>50%</tspan></text>"
-                . "<text x='40' y='101' width='10' height='10' font-size='10' fill='#888'>"
-                    . "<tspan alignment-baseline='middle' text-anchor='middle'>75%</tspan></text>"
-                . "<text x='100' y='35' width='10' height='10' font-size='10' fill='#888'>"
-                    . "<tspan alignment-baseline='middle' text-anchor='middle'>100%</tspan></text>"
                 // Add label text
                 . "<text x='100' y='60' width='100' height='12' font-size='12' fill='#bbb'><tspan text-anchor='middle'>"
                     . (isset($panel['settings']["o{$i}name"]) ? $panel['settings']["o{$i}name"] : '')
@@ -261,16 +252,30 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
                 // Add temperature
                 . "<text x='100' y='108' width='100' height='100' font-size='80' fill='white'><tspan id='panel-{$panel['id']}-o{$i}t' alignment-baseline='middle' text-anchor='middle'>"
                     . (isset($panel['data']["o{$i}t"]) ? $panel['data']["o{$i}t"] : '?')
-                    . "</tspan></text>"
+                    . "</tspan></text>";
+            //
+            // Check if there is a humidity sensor setup
+            //
+            if( isset($panel['settings']["o{$i}h"]) && $panel['settings']["o{$i}h"] != 0 ) {
+                // Add tick labels
+                $panel['content'] .= "<text x='160' y='101' width='10' height='10' font-size='10' fill='#888'>"
+                        . "<tspan alignment-baseline='middle' text-anchor='middle'>25%</tspan></text>"
+                    . "<text x='100' y='167' width='10' height='10' font-size='10' fill='#888'>"
+                        . "<tspan alignment-baseline='middle' text-anchor='middle'>50%</tspan></text>"
+                    . "<text x='40' y='101' width='10' height='10' font-size='10' fill='#888'>"
+                        . "<tspan alignment-baseline='middle' text-anchor='middle'>75%</tspan></text>"
+                    . "<text x='100' y='35' width='10' height='10' font-size='10' fill='#888'>"
+                        . "<tspan alignment-baseline='middle' text-anchor='middle'>100%</tspan></text>";
                 // Add humidity circle & value
-                . "<circle id='panel-{$panel['id']}-o{$i}hc' cx='{$cx}' cy='{$cy}' r='12' fill='rgba(255,200,0,0.75)' stroke='#fff' stroke-width='0.5'/>"
-                . "<text x='{$cx}' y='" . ($cy+1) . "' width='20' height='20' font-size='15' fill='black'>"
+                $panel['content'] .= "<circle id='panel-{$panel['id']}-o{$i}hc' cx='{$cx}' cy='{$cy}' r='12' fill='rgba(255,200,0,0.75)' stroke='#fff' stroke-width='0.5'/>";
+                $panel['content'] .= "<text x='{$cx}' y='" . ($cy+1) . "' width='20' height='20' font-size='15' fill='black'>"
                     . "<tspan id='panel-{$panel['id']}-o{$i}h' alignment-baseline='middle' text-anchor='middle'>"
                         . (isset($panel['data']["o{$i}h"]) ? $panel['data']["o{$i}h"] : '?')
                         . "</tspan>"
-                    . "</text>"
-                // Add units text
-                . "<text x='100' y='145' width='100' height='12' font-size='10' fill='#888'><tspan text-anchor='middle'>"
+                    . "</text>";
+            }
+            // Add units text
+            $panel['content'] .= "<text x='100' y='145' width='100' height='12' font-size='10' fill='#888'><tspan text-anchor='middle'>"
                     . (isset($panel['settings']["o{$i}tu"]) ? strtoupper($panel['settings']["o{$i}tu"][0]) : '')
                     . "</tspan></text>"
                 . "</svg>"
