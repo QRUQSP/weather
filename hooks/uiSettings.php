@@ -32,6 +32,7 @@ function qruqsp_weather_hooks_uiSettings(&$ciniki, $tnid, $args) {
         $menu_item = array(
             'priority'=>5000,
             'label'=>'Weather',
+            'helpcontent' => 'View your local weather sensors and graphs.',
             'edit'=>array('app'=>'qruqsp.weather.main'),
             );
         $rsp['menu_items'][] = $menu_item;
