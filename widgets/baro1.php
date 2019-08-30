@@ -34,6 +34,20 @@ function qruqsp_weather_widgets_baro1(&$ciniki, $tnid, $args) {
     // Make sure the sample date is within the last 5 minutes
     //
     $age_dt = new DateTime('now', new DateTimezone('UTC'));
+    $age_dt_1a = clone $age_dt;
+    $age_dt_1a->sub(new DateInterval('PT1H'));
+    $age_dt_1b = clone $age_dt_1a;
+    $age_dt_1b->sub(new DateInterval('PT6M'));
+
+    $age_dt_6a = clone $age_dt;
+    $age_dt_6a->sub(new DateInterval('PT6H'));
+    $age_dt_6b = clone $age_dt_6a;
+    $age_dt_6b->sub(new DateInterval('PT6M'));
+
+    $age_dt_12a = clone $age_dt;
+    $age_dt_12a->sub(new DateInterval('PT12H'));
+    $age_dt_12b = clone $age_dt_12a;
+    $age_dt_12b->sub(new DateInterval('PT6M'));
     $age_dt->sub(new DateInterval('PT6M'));
 
     $sensor_ids = array();
@@ -46,21 +60,43 @@ function qruqsp_weather_widgets_baro1(&$ciniki, $tnid, $args) {
             . "sensors.name, "
             . "sensors.flags, "
             . "sensors.fields, "
-            . "IFNULL(data.millibars, '') AS millibars "
+            . "IFNULL(data.millibars, '') AS millibars, "
+            . "IFNULL(data1.millibars, '') AS millibars1, "
+            . "IFNULL(data6.millibars, '') AS millibars6, "
+            . "IFNULL(data12.millibars, '') AS millibars12 "
             . "FROM qruqsp_weather_sensors AS sensors "
             . "LEFT JOIN qruqsp_weather_sensor_data AS data ON ("
                 . "sensors.id = data.sensor_id "
                 . "AND sensors.last_sample_date = data.sample_date "
                 . "AND data.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
+            . "LEFT JOIN qruqsp_weather_sensor_data AS data1 ON ("
+                . "sensors.id = data1.sensor_id "
+                . "AND data1.sample_date > '" . ciniki_core_dbQuote($ciniki, $age_dt_1b->format('Y-m-d H:i:s')) . "' "
+                . "AND data1.sample_date < '" . ciniki_core_dbQuote($ciniki, $age_dt_1a->format('Y-m-d H:i:s')) . "' "
+                . "AND data1.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "LEFT JOIN qruqsp_weather_sensor_data AS data6 ON ("
+                . "sensors.id = data6.sensor_id "
+                . "AND data6.sample_date > '" . ciniki_core_dbQuote($ciniki, $age_dt_6b->format('Y-m-d H:i:s')) . "' "
+                . "AND data6.sample_date < '" . ciniki_core_dbQuote($ciniki, $age_dt_6a->format('Y-m-d H:i:s')) . "' "
+                . "AND data6.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "LEFT JOIN qruqsp_weather_sensor_data AS data12 ON ("
+                . "sensors.id = data12.sensor_id "
+                . "AND data12.sample_date > '" . ciniki_core_dbQuote($ciniki, $age_dt_12b->format('Y-m-d H:i:s')) . "' "
+                . "AND data12.sample_date < '" . ciniki_core_dbQuote($ciniki, $age_dt_12a->format('Y-m-d H:i:s')) . "' "
+                . "AND data12.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
             . "WHERE sensors.id IN (" . ciniki_core_dbQuoteIDs($ciniki, $sensor_ids) . ") "
             . "AND sensors.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND sensors.last_sample_date > '" . ciniki_core_dbQuote($ciniki, $age_dt->format('Y-m-d H:i:s')) . "' "
-            . "ORDER BY sensors.id ";
+            . "ORDER BY sensors.id "
+            . "LIMIT 1 ";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
         $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'qruqsp.weather', array(
             array('container'=>'sensors', 'fname'=>'id', 
-                'fields'=>array('id', 'name', 'flags', 'fields', 'millibars'),
+                'fields'=>array('id', 'name', 'flags', 'fields', 'millibars', 'millibars1', 'millibars6', 'millibars12'),
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
@@ -80,13 +116,31 @@ function qruqsp_weather_widgets_baro1(&$ciniki, $tnid, $args) {
         if( isset($widget['settings']['units']) && $widget['settings']['units'] == 'mmhg' ) {
             $widget['data']['angle'] = ((($sensors[$widget['settings']['pid']]['millibars'] * 0.75006) - 720) * 3.75) + 90 + 28.75;
             $widget['data']['pid'] = round($sensors[$widget['settings']['pid']]['millibars'] * 0.75006);
+            $widget['data']['angle1'] = ((($sensors[$widget['settings']['pid']]['millibars1'] * 0.75006) - 720) * 3.75) + 90 + 28.75;
+            $widget['data']['pid1'] = round($sensors[$widget['settings']['pid']]['millibars1'] * 0.75006);
+            $widget['data']['angle6'] = ((($sensors[$widget['settings']['pid']]['millibars6'] * 0.75006) - 720) * 3.75) + 90 + 28.75;
+            $widget['data']['pid6'] = round($sensors[$widget['settings']['pid']]['millibars6'] * 0.75006);
+            $widget['data']['angle12'] = ((($sensors[$widget['settings']['pid']]['millibars12'] * 0.75006) - 720) * 3.75) + 90 + 28.75;
+            $widget['data']['pid12'] = round($sensors[$widget['settings']['pid']]['millibars12'] * 0.75006);
         } else {
             $widget['data']['angle'] = (($sensors[$widget['settings']['pid']]['millibars'] - 960) * 2.75) + 90 + 28.75;
             $widget['data']['pid'] = round($sensors[$widget['settings']['pid']]['millibars']);
+            $widget['data']['angle1'] = (($sensors[$widget['settings']['pid']]['millibars1'] - 960) * 2.75) + 90 + 28.75;
+            $widget['data']['pid1'] = round($sensors[$widget['settings']['pid']]['millibars1']);
+            $widget['data']['angle6'] = (($sensors[$widget['settings']['pid']]['millibars6'] - 960) * 2.75) + 90 + 28.75;
+            $widget['data']['pid6'] = round($sensors[$widget['settings']['pid']]['millibars6']);
+            $widget['data']['angle12'] = (($sensors[$widget['settings']['pid']]['millibars12'] - 960) * 2.75) + 90 + 28.75;
+            $widget['data']['pid12'] = round($sensors[$widget['settings']['pid']]['millibars12']);
         }
     } else {
         $widget['data']['pid'] = '?';
         $widget['data']['angle'] = 0;
+        $widget['data']['pid1'] = '?';
+        $widget['data']['angle1'] = 0;
+        $widget['data']['pid6'] = '?';
+        $widget['data']['angle6'] = 0;
+        $widget['data']['pid12'] = '?';
+        $widget['data']['angle12'] = 0;
     }
 
     if( isset($args['action']) && $args['action'] == 'update' ) {
@@ -136,12 +190,24 @@ function qruqsp_weather_widgets_baro1(&$ciniki, $tnid, $args) {
             $widget['content'] .= "<text x='{$x1}' y='{$y1}' width='10' height='10' font-size='10' fill='#888'><tspan alignment-baseline='middle' text-anchor='middle'>{$y}</tspan></text>";
         }
     }
+    // Add history dots
+    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot1' cx='180' cy='100' r='10' "
+        . "fill='rgba(255,255,255,0.35)' stroke='grey' stroke-width='0.5' "
+        . "transform='rotate({$widget['data']['angle1']},100,100)' />";
+    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot6' cx='180' cy='100' r='7' "
+        . "fill='rgba(255,255,255,0.35)' stroke='grey' stroke-width='0.5' "
+        . "transform='rotate({$widget['data']['angle6']},100,100)' />";
+    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot12' cx='180' cy='100' r='3' "
+        . "fill='rgba(255,255,255,0.35)' stroke='grey' stroke-width='0.5' "
+        . "transform='rotate({$widget['data']['angle12']},100,100)' />";
     // Add barometer dot
     $widget['content'] .= "<circle id='widget-{$widget['id']}-dot' cx='180' cy='100' r='12' "
-            . "fill='rgba(0,105,255,0.65)' stroke='white' stroke-width='0.5' "
-            . "transform='rotate({$widget['data']['angle']},100,100)' />"
-        // Add label
-        . "<text x='100' y='70' width='100' height='12' font-size='12' fill='#bbb'><tspan text-anchor='middle'>"
+        . "fill='rgba(0,105,255,0.65)' stroke='white' stroke-width='0.5' "
+        . "transform='rotate({$widget['data']['angle']},100,100)' />";
+
+
+    // Add label
+    $widget['content'] .= "<text x='100' y='70' width='100' height='12' font-size='12' fill='#bbb'><tspan text-anchor='middle'>"
         . (isset($panel['settings']['name']) ? $widget['settings']['name'] : '')
         . "</tspan></text>"
         // Add center text
@@ -165,6 +231,18 @@ function qruqsp_weather_widgets_baro1(&$ciniki, $tnid, $args) {
                 . "if( data.angle != null && data.angle != '?' ) {"
                     . "var dot = db_ge(this,'dot');"
                     . "dot.setAttributeNS(null,'transform', 'rotate('+data.angle+',100,100)');"
+                . "}"
+                . "if( data.angle1 != null && data.angle1 != '?' ) {"
+                    . "var dot1 = db_ge(this,'dot1');"
+                    . "dot1.setAttributeNS(null,'transform', 'rotate('+data.angle1+',100,100)');"
+                . "}"
+                . "if( data.angle6 != null && data.angle6 != '?' ) {"
+                    . "var dot6 = db_ge(this,'dot6');"
+                    . "dot6.setAttributeNS(null,'transform', 'rotate('+data.angle6+',100,100)');"
+                . "}"
+                . "if( data.angle12 != null && data.angle12 != '?' ) {"
+                    . "var dot12 = db_ge(this,'dot12');"
+                    . "dot12.setAttributeNS(null,'transform', 'rotate('+data.angle12+',100,100)');"
                 . "}"
             . "}};",
         'init' => "function() {};",
