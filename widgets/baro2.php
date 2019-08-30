@@ -79,7 +79,6 @@ function qruqsp_weather_widgets_baro2(&$ciniki, $tnid, $args) {
             . "AND sensors.last_sample_date > '" . ciniki_core_dbQuote($ciniki, $age_dt->format('Y-m-d H:i:s')) . "' "
             . "ORDER BY sensors.id "
             . "LIMIT 1 ";
-//            error_log($strsql);
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
         $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'qruqsp.weather', array(
             array('container'=>'sensors', 'fname'=>'id', 
@@ -118,7 +117,6 @@ function qruqsp_weather_widgets_baro2(&$ciniki, $tnid, $args) {
         $widget['data']['pid'] = '?';
         $widget['data']['angle'] = 0;
         for($i = 1; $i < 6; $i++) {
-            $widget['data']['pid' . $i] = '?';
             $widget['data']['angle' . $i] = 0;
         }
     }
@@ -171,32 +169,32 @@ function qruqsp_weather_widgets_baro2(&$ciniki, $tnid, $args) {
         }
     }
     // Add history dots
-    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot5' cx='152' cy='100' r='1' "
+    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot5' cx='150' cy='100' r='1' "
         . "fill='rgba(0,105,255,0.85)' stroke='white' stroke-width='0.25' "
         . "transform='rotate({$widget['data']['angle5']},100,100)' />";
-    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot4' cx='154' cy='100' r='2' "
+    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot4' cx='152.5' cy='100' r='2' "
         . "fill='rgba(0,105,255,0.85)' stroke='white' stroke-width='0.25' "
         . "transform='rotate({$widget['data']['angle4']},100,100)' />";
-    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot3' cx='159' cy='100' r='3.5' "
+    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot3' cx='157' cy='100' r='3.5' "
         . "fill='rgba(0,105,255,0.85)' stroke='white' stroke-width='0.25' "
         . "transform='rotate({$widget['data']['angle3']},100,100)' />";
-    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot2' cx='165' cy='100' r='5' "
+    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot2' cx='163' cy='100' r='5' "
         . "fill='rgba(0,105,255,0.85)' stroke='white' stroke-width='0.25' "
         . "transform='rotate({$widget['data']['angle2']},100,100)' />";
-    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot1' cx='172' cy='100' r='6.5' "
+    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot1' cx='170' cy='100' r='6.5' "
         . "fill='rgba(0,105,255,0.85)' stroke='white' stroke-width='0.25' "
         . "transform='rotate({$widget['data']['angle1']},100,100)' />"; 
     // Add the needle line
     if( isset($widget['settings']['line']) && $widget['settings']['line'] == 'yes' ) {
-        $widget['content'] .= "<line id='widget-{$widget['id']}-line' x1='100' y1='100' x2='172' y2='100' "
+        $widget['content'] .= "<line id='widget-{$widget['id']}-line' x1='100' y1='100' x2='170' y2='100' "
             . "fill='rgba(0,105,255,0.85)' stroke='#bbb' stroke-width='0.5' "
             . "transform='rotate({$widget['data']['angle']},100,100)' />";
-        $widget['content'] .= "<line id='widget-{$widget['id']}-stub' x1='188' y1='100' x2='193' y2='100' "
+        $widget['content'] .= "<line id='widget-{$widget['id']}-stub' x1='190' y1='100' x2='193' y2='100' "
             . "fill='rgba(0,105,255,0.85)' stroke='#bbb' stroke-width='0.5' "
             . "transform='rotate({$widget['data']['angle']},100,100)' />";
     }
     // Add barometer dot
-    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot' cx='180' cy='100' r='8' "
+    $widget['content'] .= "<circle id='widget-{$widget['id']}-dot' cx='180' cy='100' r='10' "
         . "fill='rgba(0,105,255,0.85)' stroke='white' stroke-width='0.25' "
         . "transform='rotate({$widget['data']['angle']},100,100)' />";
 

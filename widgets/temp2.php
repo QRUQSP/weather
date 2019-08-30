@@ -68,7 +68,7 @@ function qruqsp_weather_widgets_temp2(&$ciniki, $tnid, $args) {
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.23', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.76', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
         }
         $sensors = isset($rc['sensors']) ? $rc['sensors'] : array();
     } else {

@@ -90,7 +90,7 @@ function qruqsp_weather_hooks_dashboardWidgets(&$ciniki, $tnid, $args) {
                 'units' => array(
                     'label' => 'Units', 
                     'type' => 'toggle',
-                    'toggles' => array('celsius'=>'Celsuis', 'fahrenheit'=>'Fahrenheit'), 
+                    'toggles' => array('celsius'=>'Celsius', 'fahrenheit'=>'Fahrenheit'), 
                     'default' => $temp_units,
                 ),
                 'tid' => array(
@@ -111,8 +111,40 @@ function qruqsp_weather_hooks_dashboardWidgets(&$ciniki, $tnid, $args) {
                 'units' => array(
                     'label' => 'Units', 
                     'type' => 'toggle',
-                    'toggles' => array('celsius'=>'Celsuis', 'fahrenheit'=>'Fahrenheit'), 
+                    'toggles' => array('celsius'=>'Celsius', 'fahrenheit'=>'Fahrenheit'), 
                     'default' => $temp_units,
+                ),
+                'tid' => array(
+                    'label' => 'Temperature Sensor',
+                    'type' => 'select', 
+                    'options' => $temperature_sensors,
+                ),
+                'hid' => array(
+                    'label' => 'Humidity Sensor',
+                    'type' => 'select', 
+                    'options' => $humidity_sensors,
+                ),
+            ),
+        ),
+        'qruqsp.weather.temp3' => array(
+            'name' => 'Temperature & Humidity Tails',
+            'category' => 'Weather',
+            'options' => array(
+                'name' => array(
+                    'label' => 'Label', 
+                    'type' => 'text',
+                ),
+                'units' => array(
+                    'label' => 'Units', 
+                    'type' => 'toggle',
+                    'toggles' => array('celsius'=>'Celsius', 'fahrenheit'=>'Fahrenheit'), 
+                    'default' => $temp_units,
+                ),
+                'line' => array(
+                    'label' => 'Needle', 
+                    'type' => 'toggle',
+                    'toggles' => array('no'=>'No', 'yes'=>'Yes'), 
+                    'default' => 'yes',
                 ),
                 'tid' => array(
                     'label' => 'Temperature Sensor',
