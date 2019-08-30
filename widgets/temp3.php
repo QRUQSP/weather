@@ -129,6 +129,7 @@ function qruqsp_weather_widgets_temp3(&$ciniki, $tnid, $args) {
         for($i = 1; $i < 6; $i++) {
             if( isset($sensors[$widget['settings']['hid']]['humidity' . $i]) ) {
                 $widget['data']['angle' . $i] = (($sensors[$widget['settings']['hid']]['humidity' . $i]/100)*360) - 90;
+                $widget['data']['angle' . $i] = (($sensors[$widget['settings']['hid']]['humidity' . $i]/100)*360) - 90;
             } else {
                 $widget['data']['angle' . $i] = -90;
             }
@@ -201,10 +202,10 @@ function qruqsp_weather_widgets_temp3(&$ciniki, $tnid, $args) {
         // Add humidity circle & value
         // Add the needle line
         if( isset($widget['settings']['line']) && $widget['settings']['line'] == 'yes' ) {
-            $widget['content'] .= "<line id='widget-{$widget['id']}-line' x1='100' y1='100' x2='172' y2='100' "
+            $widget['content'] .= "<line id='widget-{$widget['id']}-line' x1='100' y1='100' x2='170' y2='100' "
                 . "fill='rgba(0,105,255,0.85)' stroke='#bbb' stroke-width='0.5' "
                 . "transform='rotate({$widget['data']['angle']},100,100)' />";
-            $widget['content'] .= "<line id='widget-{$widget['id']}-stub' x1='188' y1='100' x2='193' y2='100' "
+            $widget['content'] .= "<line id='widget-{$widget['id']}-stub' x1='190' y1='100' x2='193' y2='100' "
                 . "fill='rgba(0,105,255,0.85)' stroke='#bbb' stroke-width='0.5' "
                 . "transform='rotate({$widget['data']['angle']},100,100)' />";
         }
@@ -229,14 +230,18 @@ function qruqsp_weather_widgets_temp3(&$ciniki, $tnid, $args) {
             . "}"
             . "if( data.hid != null ) {"
                 . "var txt = db_ge(this,'hid');"
-                . "var circle = db_ge(this,'hc');"
-                . "txt.textContent = data.hid;"
+                . "var circle = db_ge(this,'hc');\n"
+                . "txt.textContent = data.hid;\n"
                 . "if(data.hid!='?'){"
                     . "var a = (((data.hid/100)*360)-90)*0.0174532925;"
                     . "circle.setAttributeNS(null,'cx',100 + (80 * Math.cos(a)));"
                     . "circle.setAttributeNS(null,'cy',100 + (80 * Math.sin(a)));"
                     . "txt.parentNode.setAttributeNS(null,'x',100 + (80 * Math.cos(a)));"
                     . "txt.parentNode.setAttributeNS(null,'y',101 + (80 * Math.sin(a)));"
+                    . "var line = db_ge(this,'line');"
+                    . "if( line != null ) { line.setAttributeNS(null,'transform', 'rotate('+data.angle+',100,100)'); }"
+                    . "var stub = db_ge(this,'stub');"
+                    . "if( stub != null ) { stub.setAttributeNS(null,'transform', 'rotate('+data.angle+',100,100)'); }"
                 . "}}"
             . "if( data.angle1 != null && data.angle1 != '?' ) {"
                 . "var dot1 = db_ge(this,'dot1');"
