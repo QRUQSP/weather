@@ -61,7 +61,7 @@ function qruqsp_weather_hooks_dashboardPanels(&$ciniki, $tnid, $args) {
 
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'qruqsp.weather', 'sensors');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.56', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.74', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
     }
     if( isset($rc['rows']) ) {  
         foreach($rc['rows'] as $sensor) {

@@ -17,7 +17,7 @@ function qruqsp_weather_widgets_temp2(&$ciniki, $tnid, $args) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
 
     if( !isset($args['widget']['widget_ref']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.54', 'msg'=>'No dashboard widget specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.71', 'msg'=>'No dashboard widget specified'));
     }
 
     if( !isset($args['widget']['content']) ) {

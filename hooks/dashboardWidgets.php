@@ -148,6 +148,34 @@ function qruqsp_weather_hooks_dashboardWidgets(&$ciniki, $tnid, $args) {
                 ),
             ),
         ),
+        'qruqsp.weather.baro2' => array(
+            'name' => 'Barometer Dial with Tail',
+            'category' => 'Weather',
+            'options' => array(
+                'name' => array(
+                    'label' => 'Label', 
+                    'type' => 'text',
+                    'default' => 'Barometer',
+                ),
+                'units' => array(
+                    'label' => 'Units', 
+                    'type' => 'toggle',
+                    'toggles' => array('mbar'=>'mbar/hPa', 'mmhg'=>'mmHg'), 
+                    'default' => $pressure_units,
+                ),
+                'line' => array(
+                    'label' => 'Needle', 
+                    'type' => 'toggle',
+                    'toggles' => array('no'=>'No', 'yes'=>'Yes'), 
+                    'default' => 'yes',
+                ),
+                'pid' => array(
+                    'label' => 'Pressure Sensor',
+                    'type' => 'select', 
+                    'options' => $pressure_sensors,
+                ),
+            ),
+        ),
         'qruqsp.weather.wind1' => array(
             'name' => 'Wind Speed & Direction',
             'category' => 'Weather',

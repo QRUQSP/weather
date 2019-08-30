@@ -15,7 +15,7 @@
 function qruqsp_weather_hooks_dashboardPanel(&$ciniki, $tnid, $args) {
 
     if( !isset($args['panel']['panel_ref']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.32', 'msg'=>'No dashboard panel specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.62', 'msg'=>'No dashboard panel specified'));
     }
 
     if( !isset($args['panel']['content']) ) {
@@ -39,7 +39,7 @@ function qruqsp_weather_hooks_dashboardPanel(&$ciniki, $tnid, $args) {
         return $fn($ciniki, $tnid, $args, (isset($pieces[3]) ? $pieces[3] : ''));
     }
 
-    return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.55', 'msg'=>'Dashboard panel not found'));
+    return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.73', 'msg'=>'Dashboard panel not found'));
 }
 ?>
 

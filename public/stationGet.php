@@ -201,7 +201,7 @@ function qruqsp_weather_stationGet($ciniki) {
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.23', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.60', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
         }
         $station['sensors'] = isset($rc['sensors']) ? $rc['sensors'] : array();
         //

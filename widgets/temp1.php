@@ -17,7 +17,7 @@ function qruqsp_weather_widgets_temp1(&$ciniki, $tnid, $args) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
 
     if( !isset($args['widget']['widget_ref']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.54', 'msg'=>'No dashboard widget specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.70', 'msg'=>'No dashboard widget specified'));
     }
 
     if( !isset($args['widget']['content']) ) {
@@ -65,7 +65,7 @@ function qruqsp_weather_widgets_temp1(&$ciniki, $tnid, $args) {
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.23', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.36', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
         }
         $sensors = isset($rc['sensors']) ? $rc['sensors'] : array();
     } else {

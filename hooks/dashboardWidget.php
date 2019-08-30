@@ -15,7 +15,7 @@
 function qruqsp_weather_hooks_dashboardWidget(&$ciniki, $tnid, $args) {
 
     if( !isset($args['widget']['widget_ref']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.32', 'msg'=>'No dashboard widget specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.63', 'msg'=>'No dashboard widget specified'));
     }
 
     if( !isset($args['widget']['content']) ) {
@@ -34,10 +34,10 @@ function qruqsp_weather_hooks_dashboardWidget(&$ciniki, $tnid, $args) {
     $module = $pieces[1];
     $widget = $pieces[2];
     $rc = ciniki_core_loadMethod($ciniki, $package, $module, 'widgets', $widget);
-    if( $rc['stat'] == 'ok' ) {
+    if( $rc['stat'] == 'ok' && isset($rc['function_call']) && is_callable($rc['function_call']) ) {
         $fn = $rc['function_call'];
         return $fn($ciniki, $tnid, $args);
-    }
+    } 
 
     return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.55', 'msg'=>'Dashboard widget not found'));
 }

@@ -84,7 +84,7 @@ function qruqsp_weather_panels_orbitDials(&$ciniki, $tnid, $args, $num_dials) {
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.23', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.59', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
         }
         $sensors = isset($rc['sensors']) ? $rc['sensors'] : array();
     }

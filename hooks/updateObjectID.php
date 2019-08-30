@@ -27,10 +27,10 @@ function qruqsp_weather_hooks_updateObjectID(&$ciniki, $tnid, $args) {
     // Check to make sure object and description have been passed
     //  
     if( !isset($args['object']) ) { 
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.32', 'msg'=>"No object specified."));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.64', 'msg'=>"No object specified."));
     }   
     if( !isset($args['old_object_id']) ) { 
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.33', 'msg'=>"No old object specified."));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.65', 'msg'=>"No old object specified."));
     }   
     if( !isset($args['new_object_id']) ) { 
         return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.34', 'msg'=>"No new object specified."));
@@ -47,7 +47,7 @@ function qruqsp_weather_hooks_updateObjectID(&$ciniki, $tnid, $args) {
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'qruqsp.weather', 'item');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.35', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.67', 'msg'=>'Unable to load sensors', 'err'=>$rc['err']));
     }
     if( isset($rc['rows']) ) {
         $sensors = $rc['rows'];

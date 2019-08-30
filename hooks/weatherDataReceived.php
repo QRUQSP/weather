@@ -198,7 +198,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
                 $sensor['station_id'] = $rc['id'];
             }
         } else {
-            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.34', 'msg'=>'No station specified'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.66', 'msg'=>'No station specified'));
         }
 
         //
