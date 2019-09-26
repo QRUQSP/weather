@@ -145,7 +145,7 @@ function qruqsp_weather_main() {
         this.end_ts = Math.floor(Date.now()/(1000*this.slice_seconds)) * this.slice_seconds;
         this.start_ts = this.end_ts - (this.slice_seconds * 720);
         for(var i in this.sections) {
-            if( this.sections[i].type == 'svg' ) {
+            if( this.sections[i].type == 'svg' && this.sections[i].visible() == 'yes' ) {
                 this.loadSVG(i);
             }
         }
@@ -336,7 +336,7 @@ function qruqsp_weather_main() {
             p.refreshSection('sensors');
         });
         for(var i in this.sections) {
-            if( this.sections[i].type == 'svg' ) {
+            if( this.sections[i].type == 'svg' && this.sections[i].visible() == 'yes' ) {
                 this.updateSVG(i);
             }
         }
