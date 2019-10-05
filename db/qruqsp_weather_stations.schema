@@ -17,6 +17,10 @@
 #                               0x02 - Beacon APRS
 #                               0x04 - Submit to weather underground
 #                               0x08 - 
+#                               0x10 - Remote station, read only
+#                               0x20 - 
+#                               0x40 - 
+#                               0x80 - 
 #
 # latitude:                 The current latitude of the station. Historical latitude is attached to sensor data.
 # longitude:                The current longitude of the station.

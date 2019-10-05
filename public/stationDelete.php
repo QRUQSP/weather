@@ -55,6 +55,22 @@ function qruqsp_weather_stationDelete(&$ciniki) {
     $station = $rc['station'];
 
     //
+    // Get the current sensors for the station
+    //
+    $strsql = "SELECT id, uuid, name, flags, fields "
+        . "FROM qruqsp_weather_sensors AS sensors "
+        . "WHERE sensors.station_id = '" . ciniki_core_dbQuote($ciniki, $args['station_id']) . "' "
+        . "AND sensors.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'qruqsp.weather', 'sensor');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.77', 'msg'=>'Unable to load sensor', 'err'=>$rc['err']));
+    }
+    if( isset($rc['rows']) ) {
+        $sensors = $rc['rows'];
+    }
+
+    //
     // Check for any dependencies before deleting
     //
 
@@ -82,6 +98,35 @@ function qruqsp_weather_stationDelete(&$ciniki) {
     $rc = ciniki_core_dbTransactionStart($ciniki, 'qruqsp.weather');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
+    }
+
+    // 
+    // Remove any sensor data and sensors for this station
+    //
+    if( isset($sensors) ) {
+        foreach($sensors as $sensor) {
+            //
+            // Remove the sensor data
+            //
+            $strsql = "DELETE FROM qruqsp_weather_sensor_data "
+                . "WHERE sensor_id = '" . ciniki_core_dbQuote($ciniki, $sensor['id']) . "' "
+                . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                . "";
+            $rc = ciniki_core_dbDelete($ciniki, $strsql, 'qruqsp.weather');
+            if( $rc['stat'] != 'ok' ) {
+                ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.weather');
+                return $rc;
+            }
+
+            //
+            // Remove the sensor
+            //
+            $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'qruqsp.weather.sensor', $sensor['id'], $sensor['uuid'], 0x04);
+            if( $rc['stat'] != 'ok' ) {
+                ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.weather');
+                return $rc;
+            }
+        }
     }
 
     //

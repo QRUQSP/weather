@@ -185,7 +185,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
                 //
                 $station = array(
                     'name' => $args['station'],
-                    'flags' => 0,
+                    'flags' => (isset($args['flags']) ? $args['flags'] : '0'),
                     'latitude' => (isset($args['latitude']) ? $args['latitude'] : '0'),
                     'longitude' => (isset($args['longitude']) ? $args['longitude'] : '0'),
                     'altitude' => (isset($args['altitude']) ? $args['altitude'] : '0'),

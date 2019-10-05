@@ -257,6 +257,7 @@ function qruqsp_weather_main() {
 
     }
     this.station.open = function(cb, sid, list) {
+        this.delButton('beacon');
         if( sid != null ) { this.station_id = sid; }
         if( list != null ) { this.nplist = list; }
         this.end_ts = Math.floor(Date.now()/(1000*this.slice_seconds)) * this.slice_seconds;
@@ -300,6 +301,9 @@ function qruqsp_weather_main() {
                 p.data.svgstyles += 'svg line.windspeed-' + rsp.station.sensors[i].id + ' { stroke: ' + M.qruqsp_weather_main.sensor_colors[i] + '; }';
             }
             p.data.svgstyles += '</style>';
+            if( (rsp.station.flags&0x10) == 0 ) {
+                p.addButton('beacon', 'Beacon', 'M.qruqsp_weather_main.station.beacon();');
+            }
             p.refresh();
             p.show(cb);
             p.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 30000);
@@ -342,7 +346,6 @@ function qruqsp_weather_main() {
         }
     }
     this.station.addButton('edit', 'Edit', 'M.qruqsp_weather_main.editstation.open(\'M.qruqsp_weather_main.station.open();\',M.qruqsp_weather_main.station.station_id);');
-    this.station.addButton('beacon', 'Beacon', 'M.qruqsp_weather_main.station.beacon();');
     this.station.addClose('Back');
 
     //
@@ -355,12 +358,15 @@ function qruqsp_weather_main() {
     this.editstation.sections = {
         'general':{'label':'', 'fields':{
             'name':{'label':'Name', 'required':'yes', 'type':'text'},
-            'latitude':{'label':'Latitude', 'type':'text'},
-            'longitude':{'label':'Longitude', 'type':'text'},
-            'altitude':{'label':'Altitude', 'type':'text'},
-        }},
+            }},
+        'position':{'label':'Position', 
+            'fields':{
+                'latitude':{'label':'Latitude', 'type':'text'},
+                'longitude':{'label':'Longitude', 'type':'text'},
+                'altitude':{'label':'Altitude', 'type':'text'},
+            }},
         'aprs_sensors':{'label':'APRS Beacon', 
-            'visible':function() {return (M.modOn('qruqsp.aprs') ? 'yes' : 'no'); },
+            'visible':function() {return (M.modOn('qruqsp.aprs') && M.modOn('qruqsp.tnc') && (M.qruqsp_weather_main.editstation.data.flags&0x10) == 0 ? 'yes' : 'no'); },
             'fields':{
                 'flags2':{'label':'Beacon', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x02},
                 'aprs_frequency':{'label':'Frequency (min)', 'type':'toggle', 'toggles':{'10':'10', '15':'15', '30':'30', '45':'45', '60':'60'}},
@@ -371,17 +377,19 @@ function qruqsp_weather_main() {
                 'aprs_wind_deg_sensor_id':{'label':'Wind Direction', 'type':'select', 'options':{}},
 //                'aprs_rain_mm_sensor_id':{'label':'Rainfall', 'type':'select', 'options':{}},
             }},
-        'wu_sensors':{'label':'Weather Underground', 'fields':{
-            'flag3':{'label':'Enable', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x04},
-            'wu_frequency':{'label':'Frequency (min)', 'type':'toggle', 'toggles':{'1':'1', '5':'5', '10':'10', '15':'15', '30':'30', '60':'60'}},
-            'wu_id':{'label':'Station ID', 'type':'text'},
-            'wu_key':{'label':'Station Key', 'type':'text'},
-            'wu_celsius_sensor_id':{'label':'Temperature', 'type':'select', 'options':{}},
-            'wu_humidity_sensor_id':{'label':'Humidity', 'type':'select', 'options':{}},
-            'wu_millibars_sensor_id':{'label':'Pressure', 'type':'select', 'options':{}},
-            'wu_wind_kph_sensor_id':{'label':'Wind Speed', 'type':'select', 'options':{}},
-            'wu_wind_deg_sensor_id':{'label':'Wind Direction', 'type':'select', 'options':{}},
-//            'wu_rain_mm_sensor_id':{'label':'Rainfall', 'type':'select', 'options':{}},
+        'wu_sensors':{'label':'Weather Underground', 
+            'visible':function() {return (M.modOn('qruqsp.aprs') && M.modOn('qruqsp.tnc') && (M.qruqsp_weather_main.editstation.data.flags&0x10) == 0 ? 'yes' : 'no'); },
+            'fields':{
+                'flag3':{'label':'Enable', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x04},
+                'wu_frequency':{'label':'Frequency (min)', 'type':'toggle', 'toggles':{'1':'1', '5':'5', '10':'10', '15':'15', '30':'30', '60':'60'}},
+                'wu_id':{'label':'Station ID', 'type':'text'},
+                'wu_key':{'label':'Station Key', 'type':'text'},
+                'wu_celsius_sensor_id':{'label':'Temperature', 'type':'select', 'options':{}},
+                'wu_humidity_sensor_id':{'label':'Humidity', 'type':'select', 'options':{}},
+                'wu_millibars_sensor_id':{'label':'Pressure', 'type':'select', 'options':{}},
+                'wu_wind_kph_sensor_id':{'label':'Wind Speed', 'type':'select', 'options':{}},
+                'wu_wind_deg_sensor_id':{'label':'Wind Direction', 'type':'select', 'options':{}},
+//                'wu_rain_mm_sensor_id':{'label':'Rainfall', 'type':'select', 'options':{}},
             }},
 /*        'aprs':{'label':'APRS', 'fields':{
             'aprs_celsius_sensor_id':{'label':'APRS Celsius Sensor', 'type':'select', 'options':{}},
@@ -412,6 +420,9 @@ function qruqsp_weather_main() {
             }
             var p = M.qruqsp_weather_main.editstation;
             p.data = rsp.station;
+            p.sections.position.fields.latitude.editable = (M.qruqsp_weather_main.editstation.data.flags&0x10) == 0 ? 'yes' : 'no';
+            p.sections.position.fields.longitude.editable = (M.qruqsp_weather_main.editstation.data.flags&0x10) == 0 ? 'yes' : 'no';
+            p.sections.position.fields.altitude.editable = (M.qruqsp_weather_main.editstation.data.flags&0x10) == 0 ? 'yes' : 'no';
             p.sections.aprs_sensors.fields.aprs_celsius_sensor_id.options = {'0':'None'};
             p.sections.aprs_sensors.fields.aprs_humidity_sensor_id.options = {'0':'None'};
             p.sections.aprs_sensors.fields.aprs_millibars_sensor_id.options = {'0':'None'};
@@ -481,13 +492,13 @@ function qruqsp_weather_main() {
         }
     }
     this.editstation.remove = function() {
-        if( confirm('Are you sure you want to remove station?') ) {
+        if( confirm('Are you sure you want to remove station? This will remove all the sensors and sensor data for this station.') ) {
             M.api.getJSONCb('qruqsp.weather.stationDelete', {'tnid':M.curTenantID, 'station_id':this.station_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
-                M.qruqsp_weather_main.editstation.close();
+                M.qruqsp_weather_main.station.close();
             });
         }
     }
