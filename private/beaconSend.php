@@ -145,7 +145,8 @@ function qruqsp_weather_beaconSend(&$ciniki, $tnid, $station_id) {
     //
     // Add the timestamp of the weather data
     //
-    $packet['data'] = '@' . $dt->format('His') . 'z';
+    //$packet['data'] = '@' . $dt->format('His') . 'z';
+    $packet['data'] = '@' . $dt->format('dHi') . 'z';
 
     //
     // Add the position of the station
