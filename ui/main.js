@@ -76,7 +76,7 @@ function qruqsp_weather_main() {
     this.station.station_id = 0;
     this.station.refreshTimer = null;
     this.station.sections = {
-        'sensors':{'label':'Sensors', 'type':'simplegrid', 'compact_split_at':3, 'num_cols':8, 'aside':'full',
+        'sensors':{'label':'Sensors', 'type':'simplegrid', 'compact_split_at':3, 'num_cols':7, 'aside':'full',
             'headerValues':['Name', '', 'Last Updated', 'Temp', 'Humidity', 'Pressure', 'Wind', 'Rain'],
             'headerClasses':['', '', '', 'aligncenter', 'aligncenter', 'aligncenter', 'aligncenter', 'aligncenter'],
             'cellClasses':['', '', 'multiline', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
@@ -126,7 +126,7 @@ function qruqsp_weather_main() {
                 case 4: return M.formatHumidity(d.humidity,1);
                 case 5: return M.formatMillibars(d.millibars);
                 case 6: return M.formatWind(d.windspeed,d.wind_deg);
-                case 7: return M.formatRain(d.rain_mm);
+//                case 7: return M.formatRain(d.rain_mm);
             }
         }
     }
@@ -369,7 +369,7 @@ function qruqsp_weather_main() {
                 'aprs_millibars_sensor_id':{'label':'Pressure', 'type':'select', 'options':{}},
                 'aprs_wind_kph_sensor_id':{'label':'Wind Speed', 'type':'select', 'options':{}},
                 'aprs_wind_deg_sensor_id':{'label':'Wind Direction', 'type':'select', 'options':{}},
-                'aprs_rain_mm_sensor_id':{'label':'Rainfall', 'type':'select', 'options':{}},
+//                'aprs_rain_mm_sensor_id':{'label':'Rainfall', 'type':'select', 'options':{}},
             }},
         'wu_sensors':{'label':'Weather Underground', 'fields':{
             'flag3':{'label':'Enable', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x04},
@@ -381,7 +381,7 @@ function qruqsp_weather_main() {
             'wu_millibars_sensor_id':{'label':'Pressure', 'type':'select', 'options':{}},
             'wu_wind_kph_sensor_id':{'label':'Wind Speed', 'type':'select', 'options':{}},
             'wu_wind_deg_sensor_id':{'label':'Wind Direction', 'type':'select', 'options':{}},
-            'wu_rain_mm_sensor_id':{'label':'Rainfall', 'type':'select', 'options':{}},
+//            'wu_rain_mm_sensor_id':{'label':'Rainfall', 'type':'select', 'options':{}},
             }},
 /*        'aprs':{'label':'APRS', 'fields':{
             'aprs_celsius_sensor_id':{'label':'APRS Celsius Sensor', 'type':'select', 'options':{}},
@@ -417,13 +417,13 @@ function qruqsp_weather_main() {
             p.sections.aprs_sensors.fields.aprs_millibars_sensor_id.options = {'0':'None'};
             p.sections.aprs_sensors.fields.aprs_wind_kph_sensor_id.options = {'0':'None'};
             p.sections.aprs_sensors.fields.aprs_wind_deg_sensor_id.options = {'0':'None'};
-            p.sections.aprs_sensors.fields.aprs_rain_mm_sensor_id.options = {'0':'None'};
+//            p.sections.aprs_sensors.fields.aprs_rain_mm_sensor_id.options = {'0':'None'};
             p.sections.wu_sensors.fields.wu_celsius_sensor_id.options = {'0':'None'};
             p.sections.wu_sensors.fields.wu_humidity_sensor_id.options = {'0':'None'};
             p.sections.wu_sensors.fields.wu_millibars_sensor_id.options = {'0':'None'};
             p.sections.wu_sensors.fields.wu_wind_kph_sensor_id.options = {'0':'None'};
             p.sections.wu_sensors.fields.wu_wind_deg_sensor_id.options = {'0':'None'};
-            p.sections.wu_sensors.fields.wu_rain_mm_sensor_id.options = {'0':'None'};
+//            p.sections.wu_sensors.fields.wu_rain_mm_sensor_id.options = {'0':'None'};
             if( rsp.station.sensors != null ) {
                 for(var i in rsp.station.sensors) {
                     if( (rsp.station.sensors[i].fields&0x01) == 0x01 ) {
