@@ -167,7 +167,7 @@ function qruqsp_weather_widgets_temp3(&$ciniki, $tnid, $args) {
             . (isset($widget['settings']['name']) ? $widget['settings']['name'] : '')
             . "</tspan></text>"
         // Add temperature
-        . "<text x='100' y='108' width='100' height='100' font-size='80' fill='white'><tspan id='widget-{$widget['id']}-tid' alignment-baseline='middle' text-anchor='middle'>"
+        . "<text x='100' y='108' width='100' height='100' font-size='80' fill='white'><tspan id='widget-{$widget['id']}-tid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
             . (isset($widget['data']['tid']) ? $widget['data']['tid'] : '?')
             . "</tspan></text>";
     //
@@ -176,13 +176,13 @@ function qruqsp_weather_widgets_temp3(&$ciniki, $tnid, $args) {
     if( isset($widget['settings']['hid']) && $widget['settings']['hid'] != 0 ) {
         // Add tick labels
         $widget['content'] .= "<text x='160' y='101' width='10' height='10' font-size='10' fill='#888'>"
-                . "<tspan alignment-baseline='middle' text-anchor='middle'>25%</tspan></text>"
+                . "<tspan dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>25%</tspan></text>"
             . "<text x='100' y='167' width='10' height='10' font-size='10' fill='#888'>"
-                . "<tspan alignment-baseline='middle' text-anchor='middle'>50%</tspan></text>"
+                . "<tspan dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>50%</tspan></text>"
             . "<text x='40' y='101' width='10' height='10' font-size='10' fill='#888'>"
-                . "<tspan alignment-baseline='middle' text-anchor='middle'>75%</tspan></text>"
+                . "<tspan dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>75%</tspan></text>"
             . "<text x='100' y='35' width='10' height='10' font-size='10' fill='#888'>"
-                . "<tspan alignment-baseline='middle' text-anchor='middle'>100%</tspan></text>";
+                . "<tspan dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>100%</tspan></text>";
         // Add humidity history
         $widget['content'] .= "<circle id='widget-{$widget['id']}-dot5' cx='150' cy='100' r='1' "
             . "fill='rgba(255,200,0,0.75)' stroke='white' stroke-width='0.25' "
@@ -211,7 +211,7 @@ function qruqsp_weather_widgets_temp3(&$ciniki, $tnid, $args) {
         }
         $widget['content'] .= "<circle id='widget-{$widget['id']}-hc' cx='{$cx}' cy='{$cy}' r='10' fill='rgba(255,200,0,0.75)' stroke='#fff' stroke-width='0.5'/>";
         $widget['content'] .= "<text x='{$cx}' y='" . ($cy+1) . "' width='20' height='20' font-size='14' fill='black'>"
-            . "<tspan id='widget-{$widget['id']}-hid' alignment-baseline='middle' text-anchor='middle'>"
+            . "<tspan id='widget-{$widget['id']}-hid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
                 . (isset($widget['data']['hid']) ? $widget['data']['hid'] : '?')
                 . "</tspan>"
             . "</text>";

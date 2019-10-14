@@ -102,7 +102,7 @@ function qruqsp_weather_widgets_temp1(&$ciniki, $tnid, $args) {
             . (isset($widget['settings']['name']) ? $widget['settings']['name'] : '')
             . "</tspan></text>"
         // Add temperature
-        . "<text x='100' y='108' width='100' height='100' font-size='80' fill='white'><tspan id='widget-{$widget['id']}-tid' alignment-baseline='middle' text-anchor='middle'>"
+        . "<text x='100' y='108' width='100' height='100' font-size='80' fill='white'><tspan id='widget-{$widget['id']}-tid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
             . (isset($widget['data']['tid']) ? $widget['data']['tid'] : '?')
             . "</tspan></text>";
     // Add units text

@@ -134,7 +134,7 @@ function qruqsp_weather_widgets_baro1(&$ciniki, $tnid, $args) {
                 $x1 -= 3;
                 $y1 -= 5;
             }
-            $widget['content'] .= "<text x='{$x1}' y='{$y1}' width='10' height='10' font-size='10' fill='#888'><tspan alignment-baseline='middle' text-anchor='middle'>{$y}</tspan></text>";
+            $widget['content'] .= "<text x='{$x1}' y='{$y1}' width='10' height='10' font-size='10' fill='#888'><tspan dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>{$y}</tspan></text>";
         }
     }
     // Add barometer dot
@@ -148,7 +148,7 @@ function qruqsp_weather_widgets_baro1(&$ciniki, $tnid, $args) {
         . (isset($panel['settings']['name']) ? $widget['settings']['name'] : '')
         . "</tspan></text>"
         // Add center text
-        . "<text x='100' y='105' width='100' height='100' font-size='50' fill='white'><tspan id='widget-{$widget['id']}-pid' alignment-baseline='middle' text-anchor='middle'>"
+        . "<text x='100' y='105' width='100' height='100' font-size='50' fill='white'><tspan id='widget-{$widget['id']}-pid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
             . (isset($widget['data']['pid']) ? $widget['data']['pid'] : '?')
             . "</tspan></text>"
         // Add units text
