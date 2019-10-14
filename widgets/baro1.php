@@ -30,6 +30,15 @@ function qruqsp_weather_widgets_baro1(&$ciniki, $tnid, $args) {
 
     $widget = $args['widget'];
 
+    $label_font_size = 12;
+    $tick_font_size = 10;
+    $pressure_font_size = 50;
+    if( isset($_SERVER['HTTP_USER_AGENT']) && stristr($_SERVER['HTTP_USER_AGENT'], ' Gecko/20') !== false ) {
+        $label_font_size = 11;
+        $tick_font_size = 9;
+        $pressure_font_size = 44;
+    }
+
     //
     // Make sure the sample date is within the last 5 minutes
     //
@@ -134,7 +143,7 @@ function qruqsp_weather_widgets_baro1(&$ciniki, $tnid, $args) {
                 $x1 -= 3;
                 $y1 -= 5;
             }
-            $widget['content'] .= "<text x='{$x1}' y='{$y1}' width='10' height='10' font-size='10' fill='#888'><tspan dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>{$y}</tspan></text>";
+            $widget['content'] .= "<text x='{$x1}' y='{$y1}' width='10' height='10' font-size='{$tick_font_size}' fill='#888'><tspan dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>{$y}</tspan></text>";
         }
     }
     // Add barometer dot
@@ -144,15 +153,15 @@ function qruqsp_weather_widgets_baro1(&$ciniki, $tnid, $args) {
 
 
     // Add label
-    $widget['content'] .= "<text x='100' y='70' width='100' height='12' font-size='12' fill='#bbb'><tspan text-anchor='middle'>"
+    $widget['content'] .= "<text x='100' y='70' width='100' height='12' font-size='{$label_font_size}' fill='#bbb'><tspan text-anchor='middle'>"
         . (isset($panel['settings']['name']) ? $widget['settings']['name'] : '')
         . "</tspan></text>"
         // Add center text
-        . "<text x='100' y='105' width='100' height='100' font-size='50' fill='white'><tspan id='widget-{$widget['id']}-pid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
+        . "<text x='100' y='105' width='100' height='100' font-size='{$pressure_font_size}' fill='white'><tspan id='widget-{$widget['id']}-pid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
             . (isset($widget['data']['pid']) ? $widget['data']['pid'] : '?')
             . "</tspan></text>"
         // Add units text
-        . "<text x='100' y='135' width='100' height='12' font-size='10' fill='#888'><tspan text-anchor='middle'>"
+        . "<text x='100' y='135' width='100' height='12' font-size='{$tick_font_size}' fill='#888'><tspan text-anchor='middle'>"
             . (isset($widget['settings']['units']) ? $widget['settings']['units'] : '')
             . "</tspan></text>"
         . "</svg>";

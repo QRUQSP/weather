@@ -30,6 +30,17 @@ function qruqsp_weather_widgets_temp1(&$ciniki, $tnid, $args) {
 
     $widget = $args['widget'];
 
+    $label_font_size = 12;
+    $tick_font_size = 10;
+    $temperature_font_size = 80;
+    $humidity_font_size = 14;
+    if( isset($_SERVER['HTTP_USER_AGENT']) && stristr($_SERVER['HTTP_USER_AGENT'], ' Gecko/20') !== false ) {
+        $label_font_size = 11;
+        $tick_font_size = 9;
+        $temperature_font_size = 72;
+        $humidity_font_size = 12;
+    }
+
     //
     // Make sure the sample date is within the last 5 minutes
     //
@@ -98,15 +109,15 @@ function qruqsp_weather_widgets_temp1(&$ciniki, $tnid, $args) {
         // Add tick marks
         . "<circle cx='100' cy='100' r='80' fill='none' stroke='#aaa' stroke-width='4' stroke-dasharray='1,6.854' transform='rotate(-0.35 100 100)'/>"
         // Add label text
-        . "<text x='100' y='60' width='100' height='12' font-size='12' fill='#bbb'><tspan text-anchor='middle'>"
+        . "<text x='100' y='60' width='100' height='12' font-size='{$label_font_size}' fill='#bbb'><tspan text-anchor='middle'>"
             . (isset($widget['settings']['name']) ? $widget['settings']['name'] : '')
             . "</tspan></text>"
         // Add temperature
-        . "<text x='100' y='108' width='100' height='100' font-size='80' fill='white'><tspan id='widget-{$widget['id']}-tid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
+        . "<text x='100' y='108' width='100' height='100' font-size='{$temperature_font_size}' fill='white'><tspan id='widget-{$widget['id']}-tid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
             . (isset($widget['data']['tid']) ? $widget['data']['tid'] : '?')
             . "</tspan></text>";
     // Add units text
-    $widget['content'] .= "<text x='100' y='145' width='100' height='12' font-size='10' fill='#888'><tspan text-anchor='middle'>"
+    $widget['content'] .= "<text x='100' y='145' width='100' height='12' font-size='{$tick_font_size}' fill='#888'><tspan text-anchor='middle'>"
             . (isset($widget['settings']['units']) ? strtoupper($widget['settings']['units'][0]) : '')
             . "</tspan></text>"
         . "</svg>";

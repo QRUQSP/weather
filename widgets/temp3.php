@@ -30,6 +30,17 @@ function qruqsp_weather_widgets_temp3(&$ciniki, $tnid, $args) {
 
     $widget = $args['widget'];
 
+    $label_font_size = 12;
+    $tick_font_size = 10;
+    $temperature_font_size = 80;
+    $humidity_font_size = 14;
+    if( isset($_SERVER['HTTP_USER_AGENT']) && stristr($_SERVER['HTTP_USER_AGENT'], ' Gecko/20') !== false ) {
+        $label_font_size = 11;
+        $tick_font_size = 9;
+        $temperature_font_size = 72;
+        $humidity_font_size = 12;
+    }
+
     //
     // Make sure the sample date is within the last 5 minutes
     //
@@ -163,11 +174,11 @@ function qruqsp_weather_widgets_temp3(&$ciniki, $tnid, $args) {
         . "<circle cx='100' cy='100' r='80' fill='none' stroke='#aaa' stroke-width='4' stroke-dasharray='1,6.854' transform='rotate(-0.35 100 100)'/>"
         . "<circle cx='100' cy='100' r='80' fill='none' stroke='#fff' stroke-width='12' stroke-dasharray='1,124.664' transform='rotate(-0.35 100 100)' />"
         // Add label text
-        . "<text x='100' y='60' width='100' height='12' font-size='12' fill='#bbb'><tspan text-anchor='middle'>"
+        . "<text x='100' y='60' width='100' height='12' font-size='{$label_font_size}' fill='#bbb'><tspan text-anchor='middle'>"
             . (isset($widget['settings']['name']) ? $widget['settings']['name'] : '')
             . "</tspan></text>"
         // Add temperature
-        . "<text x='100' y='108' width='100' height='100' font-size='80' fill='white'><tspan id='widget-{$widget['id']}-tid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
+        . "<text x='100' y='108' width='100' height='100' font-size='{$temperature_font_size}' fill='white'><tspan id='widget-{$widget['id']}-tid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
             . (isset($widget['data']['tid']) ? $widget['data']['tid'] : '?')
             . "</tspan></text>";
     //
@@ -175,13 +186,13 @@ function qruqsp_weather_widgets_temp3(&$ciniki, $tnid, $args) {
     //
     if( isset($widget['settings']['hid']) && $widget['settings']['hid'] != 0 ) {
         // Add tick labels
-        $widget['content'] .= "<text x='160' y='101' width='10' height='10' font-size='10' fill='#888'>"
+        $widget['content'] .= "<text x='160' y='101' width='10' height='10' font-size='{$tick_font_size}' fill='#888'>"
                 . "<tspan dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>25%</tspan></text>"
-            . "<text x='100' y='167' width='10' height='10' font-size='10' fill='#888'>"
+            . "<text x='100' y='167' width='10' height='10' font-size='{$tick_font_size}' fill='#888'>"
                 . "<tspan dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>50%</tspan></text>"
-            . "<text x='40' y='101' width='10' height='10' font-size='10' fill='#888'>"
+            . "<text x='40' y='101' width='10' height='10' font-size='{$tick_font_size}' fill='#888'>"
                 . "<tspan dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>75%</tspan></text>"
-            . "<text x='100' y='35' width='10' height='10' font-size='10' fill='#888'>"
+            . "<text x='100' y='35' width='10' height='10' font-size='{$tick_font_size}' fill='#888'>"
                 . "<tspan dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>100%</tspan></text>";
         // Add humidity history
         $widget['content'] .= "<circle id='widget-{$widget['id']}-dot5' cx='150' cy='100' r='1' "
@@ -210,14 +221,14 @@ function qruqsp_weather_widgets_temp3(&$ciniki, $tnid, $args) {
                 . "transform='rotate({$widget['data']['angle']},100,100)' />";
         }
         $widget['content'] .= "<circle id='widget-{$widget['id']}-hc' cx='{$cx}' cy='{$cy}' r='10' fill='rgba(255,200,0,0.75)' stroke='#fff' stroke-width='0.5'/>";
-        $widget['content'] .= "<text x='{$cx}' y='" . ($cy+1) . "' width='20' height='20' font-size='14' fill='black'>"
+        $widget['content'] .= "<text x='{$cx}' y='" . ($cy+1) . "' width='20' height='20' font-size='{$humidity_font_size}' fill='black'>"
             . "<tspan id='widget-{$widget['id']}-hid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
                 . (isset($widget['data']['hid']) ? $widget['data']['hid'] : '?')
                 . "</tspan>"
             . "</text>";
     }
     // Add units text
-    $widget['content'] .= "<text x='100' y='145' width='100' height='12' font-size='10' fill='#888'><tspan text-anchor='middle'>"
+    $widget['content'] .= "<text x='100' y='145' width='100' height='12' font-size='{$tick_font_size}' fill='#888'><tspan text-anchor='middle'>"
             . (isset($widget['settings']['units']) ? strtoupper($widget['settings']['units'][0]) : '')
             . "</tspan></text>"
         . "</svg>";
