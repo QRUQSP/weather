@@ -29,6 +29,40 @@ function qruqsp_weather_widgets_baro2(&$ciniki, $tnid, $args) {
     }
 
     $widget = $args['widget'];
+//    $widget['settings']['scale'] = '2';
+
+    //
+    // Setup the scale
+    //
+    if( isset($widget['settings']['units']) && $widget['settings']['units'] == 'mmhg' ) {
+        if( isset($widget['settings']['scale']) && $widget['settings']['scale'] == '2' ) {
+            $start_tick = 740;
+            $end_tick = 780;
+            $multiplier = 7.50;
+            $tick_space = 1;
+            $label_space = 10;
+        } else {
+            $start_tick = 720;
+            $end_tick = 800;
+            $multiplier = 3.75;
+            $tick_space = 2;
+            $label_space = 20;
+        }
+    } else {
+        if( isset($widget['settings']['scale']) && $widget['settings']['scale'] == '2' ) {
+            $start_tick = 987;
+            $end_tick = 1043;
+            $multiplier = 5.50;
+            $tick_space = 1;
+            $label_space = 10;
+        } else {
+            $start_tick = 960;
+            $end_tick = 1070;
+            $multiplier = 2.75;
+            $tick_space = 2;
+            $label_space = 20;
+        }
+    }
 
     $label_font_size = 12;
     $tick_font_size = 10;
@@ -107,19 +141,20 @@ function qruqsp_weather_widgets_baro2(&$ciniki, $tnid, $args) {
     // Check if this is a data update
     //
     $widget['data'] = array();
+    $scale = 2;
 
     if( isset($widget['settings']['pid']) && isset($sensors[$widget['settings']['pid']]['millibars']) ) {
         if( isset($widget['settings']['units']) && $widget['settings']['units'] == 'mmhg' ) {
-            $widget['data']['angle'] = ((($sensors[$widget['settings']['pid']]['millibars'] * 0.75006) - 720) * 3.75) + 90 + 28.75;
+            $widget['data']['angle'] = ((($sensors[$widget['settings']['pid']]['millibars'] * 0.75006) - $start_tick) * $multiplier) + 90 + 28.75;
             $widget['data']['pid'] = round($sensors[$widget['settings']['pid']]['millibars'] * 0.75006);
             for($i = 1; $i < 6; $i++) {
-                $widget['data']['angle' . $i] = ((($sensors[$widget['settings']['pid']]['millibars' . $i] * 0.75006) - 720) * 3.75) + 90 + 28.75;
+                $widget['data']['angle' . $i] = ((($sensors[$widget['settings']['pid']]['millibars' . $i] * 0.75006) - $start_tick) * $multiplier) + 90 + 28.75;
             }
         } else {
-            $widget['data']['angle'] = (($sensors[$widget['settings']['pid']]['millibars'] - 960) * 2.75) + 90 + 28.75;
+            $widget['data']['angle'] = (($sensors[$widget['settings']['pid']]['millibars'] - $start_tick) * $multiplier) + 90 + 28.75;
             $widget['data']['pid'] = round($sensors[$widget['settings']['pid']]['millibars']);
             for($i = 1; $i < 6; $i++) {
-                $widget['data']['angle' . $i] = (($sensors[$widget['settings']['pid']]['millibars' . $i] - 960) * 2.75) + 90 + 28.75;
+                $widget['data']['angle' . $i] = (($sensors[$widget['settings']['pid']]['millibars' . $i] - $start_tick) * $multiplier) + 90 + 28.75;
             }
         }
     } else {
@@ -143,15 +178,6 @@ function qruqsp_weather_widgets_baro2(&$ciniki, $tnid, $args) {
     $y2 = 100 + (80 * sin(115 * 0.0174532925));
     // Major ticks every 27.5 degrees
     $widget['content'] .= '<svg viewBox="0 0 200 200">';
-    if( isset($widget['settings']['units']) && $widget['settings']['units'] == 'mmhg' ) {
-        $start_tick = 720;
-        $end_tick = 800;
-        $multiplier = 3.75;
-    } else {
-        $start_tick = 960;
-        $end_tick = 1070;
-        $multiplier = 2.75;
-    }
     for($y = $start_tick; $y <= $end_tick; $y++) {
         $tick_angle = (($y - $start_tick) * $multiplier) + 90 + 28.75;
         if( ($y%10) == 0 ) {
@@ -160,14 +186,14 @@ function qruqsp_weather_widgets_baro2(&$ciniki, $tnid, $args) {
             $x2 = 100 + (86 * cos($tick_angle * 0.0174532925));
             $y2 = 100 + (86 * sin($tick_angle * 0.0174532925));
             $widget['content'] .= "<line x1='{$x1}' y1='{$y1}' x2='{$x2}' y2='{$y2}' stroke='#fff' stroke-width='1' />";
-        } elseif( ($y%2) == 0 ) {
+        } elseif( ($y%$tick_space) == 0 ) {
             $x1 = 100 + (78 * cos($tick_angle * 0.0174532925));
             $y1 = 100 + (78 * sin($tick_angle * 0.0174532925));
             $x2 = 100 + (82 * cos($tick_angle * 0.0174532925));
             $y2 = 100 + (82 * sin($tick_angle * 0.0174532925));
             $widget['content'] .= "<line x1='{$x1}' y1='{$y1}' x2='{$x2}' y2='{$y2}' stroke='#aaa' stroke-width='1' />";
         }
-        if( ($y%20) == 0 ) {
+        if( ($y%$label_space) == 0 ) {
             $x1 = 100 + (62 * cos($tick_angle * 0.0174532925));
             $y1 = 100 + (62 * sin($tick_angle * 0.0174532925));
             if( $y == 1040 ) {

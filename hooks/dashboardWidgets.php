@@ -35,6 +35,11 @@ function qruqsp_weather_hooks_dashboardWidgets(&$ciniki, $tnid, $args) {
         ) {
         $pressure_units = $ciniki['session']['user']['settings']['pressure_units'];
     }
+    if( isset($ciniki['session']['user']['settings']['pressure_scale']) 
+        && $ciniki['session']['user']['settings']['pressure_scale'] != '' 
+        ) {
+        $pressure_scale = $ciniki['session']['user']['settings']['pressure_scale'];
+    }
 
     //
     // Load the sensors available
@@ -194,6 +199,12 @@ function qruqsp_weather_hooks_dashboardWidgets(&$ciniki, $tnid, $args) {
                     'type' => 'toggle',
                     'toggles' => array('mbar'=>'mbar/hPa', 'mmhg'=>'mmHg'), 
                     'default' => $pressure_units,
+                ),
+                'scale' => array(
+                    'label' => 'Scale', 
+                    'type' => 'toggle',
+                    'toggles' => array('1'=>'Normal', '2'=>'Double'), 
+                    'default' => $pressure_scale,
                 ),
                 'line' => array(
                     'label' => 'Needle', 
