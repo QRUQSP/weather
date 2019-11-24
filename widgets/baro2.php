@@ -145,19 +145,24 @@ function qruqsp_weather_widgets_baro2(&$ciniki, $tnid, $args) {
     if( isset($widget['settings']['pid']) && isset($sensors[$widget['settings']['pid']]['millibars']) ) {
         if( isset($widget['settings']['units']) && $widget['settings']['units'] == 'mmhg' ) {
             $widget['data']['angle'] = ((($sensors[$widget['settings']['pid']]['millibars'] * 0.75006) - $start_tick) * $multiplier) + 90 + 28.75;
-            $widget['data']['pid'] = round($sensors[$widget['settings']['pid']]['millibars'] * 0.75006);
+            $pid = $sensors[$widget['settings']['pid']]['millibars'] * 0.75006;
+            $widget['data']['pid'] = floor($pid);
+            $widget['data']['decimal'] = ($pid - floor($pid));
             for($i = 1; $i < 6; $i++) {
                 $widget['data']['angle' . $i] = ((($sensors[$widget['settings']['pid']]['millibars' . $i] * 0.75006) - $start_tick) * $multiplier) + 90 + 28.75;
             }
         } else {
             $widget['data']['angle'] = (($sensors[$widget['settings']['pid']]['millibars'] - $start_tick) * $multiplier) + 90 + 28.75;
-            $widget['data']['pid'] = round($sensors[$widget['settings']['pid']]['millibars']);
+            $pid = $sensors[$widget['settings']['pid']]['millibars'];
+            $widget['data']['pid'] = floor($pid);
+            $widget['data']['decimal'] = ($pid - floor($pid));
             for($i = 1; $i < 6; $i++) {
                 $widget['data']['angle' . $i] = (($sensors[$widget['settings']['pid']]['millibars' . $i] - $start_tick) * $multiplier) + 90 + 28.75;
             }
         }
     } else {
         $widget['data']['pid'] = '?';
+        $widget['data']['decimal'] = '';
         $widget['data']['angle'] = 0;
         for($i = 1; $i < 6; $i++) {
             $widget['data']['angle' . $i] = 0;
@@ -236,18 +241,37 @@ function qruqsp_weather_widgets_baro2(&$ciniki, $tnid, $args) {
     $widget['content'] .= "<text x='100' y='70' width='100' height='12' font-size='{$label_font_size}' fill='#bbb'>"
         . "<tspan text-anchor='middle'>"
         . (isset($widget['settings']['name']) ? $widget['settings']['name'] : '')
-        . "</tspan></text>"
-        // Add center text
-        . "<text x='100' y='103' width='100' height='100' font-size='{$pressure_font_size}' fill='white'>"
-            . "<tspan id='widget-{$widget['id']}-pid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
-            . (isset($widget['data']['pid']) ? $widget['data']['pid'] : '?')
-            . "</tspan></text>"
-        // Add units text
-        . "<text x='100' y='135' width='100' height='12' font-size='{$tick_font_size}' fill='#888'>"
-            . "<tspan text-anchor='middle'>"
-            . (isset($widget['settings']['units']) ? $widget['settings']['units'] : '')
-            . "</tspan></text>"
-        . "</svg>";
+        . "</tspan></text>";
+    // Add center text
+    $widget['content'] .= "<text x='100' y='98' width='100' height='100' font-size='{$pressure_font_size}' fill='white'>"
+        . "<tspan id='widget-{$widget['id']}-pid' dominant-baseline='middle' alignment-baseline='middle' text-anchor='middle'>"
+        . (isset($widget['data']['pid']) ? $widget['data']['pid'] : '?')
+        . "</tspan></text>";
+    // Add units text
+    $widget['content'] .= "<text x='100' y='135' width='100' height='12' font-size='{$tick_font_size}' fill='#888'>"
+        . "<tspan text-anchor='middle'>"
+        . (isset($widget['settings']['units']) ? $widget['settings']['units'] : '')
+        . "</tspan></text>";
+
+    // Add decimal point
+    $widget['content'] .= "<line x1='70' y1='116' x2='70' y2='122' fill='white' stroke='white' stroke-width='0.5'/>";
+    $widget['content'] .= "<line x1='76' y1='118' x2='76' y2='120' fill='white' stroke='white' stroke-width='0.5'/>";
+    $widget['content'] .= "<line x1='82' y1='118' x2='82' y2='120' fill='white' stroke='white' stroke-width='0.5'/>";
+    $widget['content'] .= "<line x1='88' y1='118' x2='88' y2='120' fill='white' stroke='white' stroke-width='0.5'/>";
+    $widget['content'] .= "<line x1='94' y1='118' x2='94' y2='120' fill='white' stroke='white' stroke-width='0.5'/>";
+    $widget['content'] .= "<line x1='100' y1='116' x2='100' y2='122' fill='white' stroke='white' stroke-width='0.5'/>";
+    $widget['content'] .= "<line x1='106' y1='118' x2='106' y2='120' fill='white' stroke='white' stroke-width='0.5'/>";
+    $widget['content'] .= "<line x1='112' y1='118' x2='112' y2='120' fill='white' stroke='white' stroke-width='0.5'/>";
+    $widget['content'] .= "<line x1='118' y1='118' x2='118' y2='120' fill='white' stroke='white' stroke-width='0.5'/>";
+    $widget['content'] .= "<line x1='124' y1='118' x2='124' y2='120' fill='white' stroke='white' stroke-width='0.5'/>";
+    $widget['content'] .= "<line x1='130' y1='116' x2='130' y2='122' fill='white' stroke='white' stroke-width='0.5'/>";
+    if( $widget['data']['decimal'] != '' ) {
+        // Add decimal point dot
+        $widget['content'] .= "<circle id='widget-{$widget['id']}-decimal' "
+            . "cx='" . (70 + ($widget['data']['decimal'] * 60)) . "' cy='119' r='5' "
+            . "fill='rgba(9,255,0,0.65)' stroke='white' stroke-width='0.25' />";
+    }
+    $widget['content'] .= "</svg>";
 
     //
     // Prepare update JS
@@ -284,6 +308,11 @@ function qruqsp_weather_widgets_baro2(&$ciniki, $tnid, $args) {
                 . "if( data.angle5 != null && data.angle5 != '?' ) {"
                     . "var dot5 = db_ge(this,'dot5');"
                     . "dot5.setAttributeNS(null,'transform', 'rotate('+data.angle5+',100,100)');"
+                . "}"
+                . "if( data.decimal != null && data.decimal != '?' ) {"
+                    . "var d = db_ge(this,'decimal');"
+                    . "console.log(data.decimal);"
+                    . "d.setAttributeNS(null,'cx', (70 + (data.decimal*60)));"
                 . "}"
             . "}};",
         'init' => "function() {};",
