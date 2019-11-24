@@ -179,6 +179,12 @@ function qruqsp_weather_hooks_dashboardWidgets(&$ciniki, $tnid, $args) {
                     'toggles' => array('mbar'=>'mbar/hPa', 'mmhg'=>'mmHg'), 
                     'default' => $pressure_units,
                 ),
+                'scale' => array(
+                    'label' => 'Scale', 
+                    'type' => 'toggle',
+                    'toggles' => array('1'=>'Normal', '2'=>'Double'), 
+                    'default' => $pressure_scale,
+                ),
                 'pid' => array(
                     'label' => 'Pressure Sensor',
                     'type' => 'select', 
