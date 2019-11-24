@@ -35,6 +35,7 @@ function qruqsp_weather_hooks_dashboardWidgets(&$ciniki, $tnid, $args) {
         ) {
         $pressure_units = $ciniki['session']['user']['settings']['pressure_units'];
     }
+    $pressure_scale = '1';
     if( isset($ciniki['session']['user']['settings']['pressure_scale']) 
         && $ciniki['session']['user']['settings']['pressure_scale'] != '' 
         ) {

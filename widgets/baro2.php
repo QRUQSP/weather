@@ -29,7 +29,6 @@ function qruqsp_weather_widgets_baro2(&$ciniki, $tnid, $args) {
     }
 
     $widget = $args['widget'];
-//    $widget['settings']['scale'] = '2';
 
     //
     // Setup the scale
