@@ -311,7 +311,6 @@ function qruqsp_weather_widgets_baro2(&$ciniki, $tnid, $args) {
                 . "}"
                 . "if( data.decimal != null && data.decimal != '?' ) {"
                     . "var d = db_ge(this,'decimal');"
-                    . "console.log(data.decimal);"
                     . "d.setAttributeNS(null,'cx', (70 + (data.decimal*60)));"
                 . "}"
             . "}};",
