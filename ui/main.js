@@ -347,6 +347,17 @@ function qruqsp_weather_main() {
     }
     this.station.addButton('edit', 'Edit', 'M.qruqsp_weather_main.editstation.open(\'M.qruqsp_weather_main.station.open();\',M.qruqsp_weather_main.station.station_id);');
     this.station.addClose('Back');
+    this.station.helpSections = function() {
+        return {
+            '_1':{'label':'Metric/Imperial', 'type':'htmlcontent',
+                'html':'The units for Temperature and Wind Speed are set for '
+                    + 'user individual. ',
+                },
+            '_b':{'label':'', 'buttons':{
+                'units':{'label':'Open Preferences', 'fn':'M.startApp("ciniki.users.main",null,"M.qruqsp_weather_main.station.open();","mc",{"panel":"prefs"});'},
+                }},
+            };
+    }
 
     //
     // The panel to edit Station
