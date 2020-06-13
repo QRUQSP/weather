@@ -503,15 +503,15 @@ function qruqsp_weather_main() {
         }
     }
     this.editstation.remove = function() {
-        if( confirm('Are you sure you want to remove station? This will remove all the sensors and sensor data for this station.') ) {
-            M.api.getJSONCb('qruqsp.weather.stationDelete', {'tnid':M.curTenantID, 'station_id':this.station_id}, function(rsp) {
+        M.confirm('Are you sure you want to remove station? This will remove all the sensors and sensor data for this station.',null,function() {
+            M.api.getJSONCb('qruqsp.weather.stationDelete', {'tnid':M.curTenantID, 'station_id':M.qruqsp_weather_main.editstation.station_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
                 M.qruqsp_weather_main.station.close();
             });
-        }
+        });
     }
     this.editstation.nextButtonFn = function() {
         if( this.nplist != null && this.nplist.indexOf('' + this.station_id) < (this.nplist.length - 1) ) {
@@ -601,15 +601,15 @@ function qruqsp_weather_main() {
         }
     }
     this.sensor.remove = function() {
-        if( confirm('Are you sure you want to remove sensor?') ) {
-            M.api.getJSONCb('qruqsp.weather.sensorDelete', {'tnid':M.curTenantID, 'sensor_id':this.sensor_id}, function(rsp) {
+        M.confirm('Are you sure you want to remove sensor?',null,function() {
+            M.api.getJSONCb('qruqsp.weather.sensorDelete', {'tnid':M.curTenantID, 'sensor_id':M.qruqsp_weather_main.sensor.sensor_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
                 M.qruqsp_weather_main.sensor.close();
             });
-        }
+        });
     }
     this.sensor.nextButtonFn = function() {
         if( this.nplist != null && this.nplist.indexOf('' + this.sensor_id) < (this.nplist.length - 1) ) {
@@ -645,7 +645,7 @@ function qruqsp_weather_main() {
         //
         var ac = M.createContainer(ap, 'qruqsp_weather_main', 'yes');
         if( ac == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         }
 
