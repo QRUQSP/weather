@@ -33,6 +33,18 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     }
 
     //
+    // Start transaction
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionStart');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionRollback');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionCommit');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
+    $rc = ciniki_core_dbTransactionStart($ciniki, 'qruqsp.weather');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    
+    //
     // Check if request should be logged
     //
     if( isset($ciniki['config']['qruqsp.weather']['received.logging']) 
@@ -117,6 +129,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'qruqsp.weather', 'sensor');
     if( $rc['stat'] != 'ok' ) {
+        ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.weather');
         return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.11', 'msg'=>'Unable to load sensor', 'err'=>$rc['err']));
     }
     if( isset($rc['sensor']) ) {
@@ -175,6 +188,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
                 . "";
             $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'qruqsp.weather', 'station');
             if( $rc['stat'] != 'ok' ) {
+                ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.weather');
                 return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.12', 'msg'=>'Unable to check for station', 'err'=>$rc['err']));
             }
             if( isset($rc['station']) ) {
@@ -192,11 +206,13 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
                     );
                 $rc = ciniki_core_objectAdd($ciniki, $tnid, 'qruqsp.weather.station', $station, 0x04);
                 if( $rc['stat'] != 'ok' ) {
+                    ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.weather');
                     return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.13', 'msg'=>'Unable to add station', 'err'=>$rc['err']));
                 }
                 $sensor['station_id'] = $rc['id'];
             }
         } else {
+            ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.weather');
             return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.66', 'msg'=>'No station specified'));
         }
 
@@ -205,6 +221,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
         //
         $rc = ciniki_core_objectAdd($ciniki, $tnid, 'qruqsp.weather.sensor', $sensor, 0x04);
         if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.weather');
             return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.14', 'msg'=>'Unable to add sensor', 'err'=>$rc['err']));
         }
         $sensor['id'] = $rc['id'];
@@ -214,6 +231,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     // Check if sensor is to be ignored
     //
     if( ($sensor['flags']&0x01) == 0x01 ) {
+        ciniki_core_dbTransactionCommit($ciniki, 'qruqsp.weather');
         return array('stat'=>'ok');
     }
 
@@ -244,6 +262,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
         . " ";
     $rc = ciniki_core_dbInsert($ciniki, $strsql, 'qruqsp.weather');
     if( $rc['stat'] != 'ok' && $rc['stat'] != 'exists' ) {
+        ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.weather');
         return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.16', 'msg'=>'Unable to add data sample', 'err'=>$rc['err']));
     }
 
@@ -253,57 +272,91 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     if( isset($update_args) && count($update_args) > 0 ) {
         $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'qruqsp.weather.sensor', $sensor['id'], $update_args, 0x04);
         if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'qruqsp.weather');
             return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.15', 'msg'=>'Unable to update sensor', 'err'=>$rc['err']));
         }
     }
 
     //
-    // Check if station should be beaconed
+    // Commit the transaction before we try beaconing incase of any timeouts
     //
-    $strsql = "SELECT flags, "
-        . "IFNULL(TIMESTAMPDIFF(SECOND, aprs_last_beacon, UTC_TIMESTAMP()), 999) AS last_beacon_age, "
-        . "IFNULL(TIMESTAMPDIFF(SECOND, wu_last_submit, UTC_TIMESTAMP()), 999) AS wu_last_submit_age, "
-        . "aprs_frequency, wu_frequency "
-        . "FROM qruqsp_weather_stations "
-        . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $sensor['station_id']) . "' "
-        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-        . "";
-    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'qruqsp.weather', 'station');
+    $rc = ciniki_core_dbTransactionCommit($ciniki, 'qruqsp.weather');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.40', 'msg'=>'Unable to load station', 'err'=>$rc['err']));
+        return $rc;
     }
-    if( isset($rc['station']) ) {
-        $station = $rc['station'];
-      
-        //
-        // Make sure beaconing is turned on, and enough time since last beacon
-        // Apply a random number of seconds to the aprs_frequency to make sure beacon
-        // are not always sent at the same seconds offset.
-        //
-        if( ($station['flags']&0x02) == 0x02 
-            && $station['last_beacon_age'] > (($station['aprs_frequency'] * 60) + RAND(5,55))
-            && $station['aprs_frequency'] > 0
-            ) {
-            ciniki_core_loadMethod($ciniki, 'qruqsp', 'weather', 'private', 'beaconSend');
-            $rc = qruqsp_weather_beaconSend($ciniki, $tnid, $sensor['station_id']); 
-            if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.18', 'msg'=>'Unable to send aprs beacon', 'err'=>$rc['err']));
-            }
+
+    //
+    // Disconnect databases in child to stop handles getting messed up,
+    // they will be auto reconnect at next call
+    //
+    foreach($ciniki['databases'] as $did => $db) {
+        if( isset($ciniki['databases'][$did]['connection']) ) {
+            mysqli_close($ciniki['databases'][$did]['connection']);
         }
+        $ciniki['databases'][$did] = array();
+    }
+
+    //
+    // Fork the process incase the beaconing gets hung up or has long timeout when connecting to other resources
+    //
+    $pid = pcntl_fork();
+
+    if( $pid > 0 ) {
+        return array('stat'=>'ok');
+    } else {
 
         //
-        // Make sure submit to weather underground is enabled, and has been longer than frequency
+        // Check if station should be beaconed
         //
-        if( ($station['flags']&0x04) == 0x04 
-            && $station['wu_frequency'] > 0
-            && $station['wu_last_submit_age'] > ($station['wu_frequency'] * 60)
-            ) {
-            ciniki_core_loadMethod($ciniki, 'qruqsp', 'weather', 'private', 'wuSubmit');
-            $rc = qruqsp_weather_wuSubmit($ciniki, $tnid, $sensor['station_id']); 
-            if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.41', 'msg'=>'Unable to submit to weather underground', 'err'=>$rc['err']));
+        $strsql = "SELECT flags, "
+            . "IFNULL(TIMESTAMPDIFF(SECOND, aprs_last_beacon, UTC_TIMESTAMP()), 999) AS last_beacon_age, "
+            . "IFNULL(TIMESTAMPDIFF(SECOND, wu_last_submit, UTC_TIMESTAMP()), 999) AS wu_last_submit_age, "
+            . "aprs_frequency, wu_frequency "
+            . "FROM qruqsp_weather_stations "
+            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $sensor['station_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'qruqsp.weather', 'station');
+        if( $rc['stat'] != 'ok' ) {
+            error_log('WARN: Unable to beacon weather: ' . print_r($rc['err'], true));
+        }
+        if( isset($rc['station']) ) {
+            $station = $rc['station'];
+          
+            //
+            // Make sure beaconing is turned on, and enough time since last beacon
+            // Apply a random number of seconds to the aprs_frequency to make sure beacon
+            // are not always sent at the same seconds offset.
+            //
+            if( ($station['flags']&0x02) == 0x02 
+                && $station['last_beacon_age'] > (($station['aprs_frequency'] * 60) + RAND(5,55))
+                && $station['aprs_frequency'] > 0
+                ) {
+                ciniki_core_loadMethod($ciniki, 'qruqsp', 'weather', 'private', 'beaconSend');
+                $rc = qruqsp_weather_beaconSend($ciniki, $tnid, $sensor['station_id']); 
+                if( $rc['stat'] != 'ok' ) {
+                    error_log('WARN: Unable to beacon weather: ' . print_r($rc['err'], true));
+                }
+            }
+
+            //
+            // Make sure submit to weather underground is enabled, and has been longer than frequency
+            //
+            if( ($station['flags']&0x04) == 0x04 
+                && $station['wu_frequency'] > 0
+                && $station['wu_last_submit_age'] > ($station['wu_frequency'] * 60)
+                ) {
+                ciniki_core_loadMethod($ciniki, 'qruqsp', 'weather', 'private', 'wuSubmit');
+                $rc = qruqsp_weather_wuSubmit($ciniki, $tnid, $sensor['station_id']); 
+                if( $rc['stat'] != 'ok' ) {
+                    //
+                    // Don't return error because then the weather data doesn't get saved
+                    //
+                    error_log('WARN: Unable to submit to weather underground: ' . print_r($rc['err'], true));
+                } 
             }
         }
+        exit();
     }
 
     return array('stat'=>'ok');
