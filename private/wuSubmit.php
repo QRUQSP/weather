@@ -3,6 +3,13 @@
 // Description
 // -----------
 // Send a submission to weather underground.
+//
+// Note: Jun 14, 2020: The weather underground system can have a lag time between when the information
+// is submitted and it shows on the weatherunderground.com/dashboard/pws/IWASAG2
+// The https submit to their php script returns immediately with successful response
+// but the website will show data from 3-5 minutes ago.
+// On June 12, 2020 their input script had issues and the connection was timing out after 60 seconds.
+// This required the change to make this code run from a separate script, scripts/beacon.php
 // 
 // Arguments
 // ---------
