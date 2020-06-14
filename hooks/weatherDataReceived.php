@@ -31,7 +31,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     if( !isset($args['sample_date']) || $args['sample_date'] == '' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.17', 'msg'=>'No sample date specified'));
     }
-
+/*
     //
     // Start transaction
     //
@@ -43,7 +43,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    
+ */   
     //
     // Check if request should be logged
     //
@@ -278,6 +278,18 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
     }
 
     //
+    // Signal the beacon script if running
+    //
+    exec('ps ax | grep "php.*qruqsp-mods/weather/scripts/beacon.php" |grep -v grep', $pids);
+    foreach($pids as $line) {
+        if( preg_match("/^\s*([0-9]+)\s.*php.*qruqsp-mods\/weather\/scripts\/beacon.php/", $line, $m) ) {
+            posix_kill($m[1], SIGUSR1);
+        }
+    }
+
+
+/*
+    //
     // Commit the transaction before we try beaconing incase of any timeouts
     //
     $rc = ciniki_core_dbTransactionCommit($ciniki, 'qruqsp.weather');
@@ -358,7 +370,7 @@ function qruqsp_weather_hooks_weatherDataReceived(&$ciniki, $tnid, $args) {
         }
         exit();
     }
-
+*/
     return array('stat'=>'ok');
 }
 ?>

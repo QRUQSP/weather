@@ -97,6 +97,15 @@ function qruqsp_weather_stationUpdate(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'hookExec');
     ciniki_core_hookExec($ciniki, $args['tnid'], 'ciniki', 'web', 'indexObject', array('object'=>'qruqsp.weather.station', 'object_id'=>$args['station_id']));
 
+    //
+    // Update cron to make sure check is running
+    //
+    ciniki_core_loadMethod($ciniki, 'qruqsp', 'weather', 'private', 'cronCheck');
+    $rc = qruqsp_weather_cronCheck($ciniki, $args['tnid']);
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'qruqsp.weather.40', 'msg'=>'Unable to start beacon', 'err'=>$rc['err']));
+    }
+
     return array('stat'=>'ok');
 }
 ?>
