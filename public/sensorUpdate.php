@@ -21,6 +21,7 @@ function qruqsp_weather_sensorUpdate(&$ciniki) {
         'object'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Sensor Object'),
         'object_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Sensor Object ID'),
         'name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Name'),
+        'sequence'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Order'),
         'flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Options'),
         'fields'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Fields'),
         'rain_mm_offset'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Rain Offset'),

@@ -188,7 +188,7 @@ function qruqsp_weather_stationGet($ciniki) {
                 . "FROM qruqsp_weather_sensor_data "
                 . "WHERE sensor_id = data.sensor_id "
                 . ") " */
-            . "ORDER BY sensors.name ";
+            . "ORDER BY sensors.sequence, sensors.name ";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.weather', array(
             array('container'=>'sensors', 'fname'=>'id', 
@@ -213,7 +213,11 @@ function qruqsp_weather_stationGet($ciniki) {
             // Run through user preferences
             //
             $station['sensors'][$sid]['temperature'] = sprintf("%.02f", ciniki_users_convertTemperature($ciniki, $sensor['temperature']));
-            $station['sensors'][$sid]['windspeed'] = sprintf("%.02f", ciniki_users_convertWindSpeed($ciniki, $sensor['windspeed']));
+            if( ($sensor['fields']&0x10) == 0x10 ) {
+                $station['sensors'][$sid]['windspeed'] = sprintf("%.02f", ciniki_users_convertWindSpeed($ciniki, $sensor['windspeed']));
+            } else {
+                $station['sensors'][$sid]['windspeed'] = '';
+            }
         }
     }
     

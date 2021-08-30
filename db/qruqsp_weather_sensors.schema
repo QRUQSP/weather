@@ -19,6 +19,8 @@
 #
 # name:                     The name of the sensor.
 #
+# sequence:                 The order to display the sensor in.
+#
 # flags:                    The options for the sensor.
 #
 #                               0x01 - Ignore Sensor
@@ -77,6 +79,7 @@ create table qruqsp_weather_sensors (
     object varchar(250) not null,
     object_id varchar(250) not null,
     name varchar(150) not null,
+    sequence tinyint not null,
     flags smallint not null,
     fields smallint not null,
     rain_mm_offset decimal(9,2) not null,
@@ -88,4 +91,4 @@ create table qruqsp_weather_sensors (
     unique index (uuid),
 #    unique index (object, object_id),
     index sync (tnid, uuid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';

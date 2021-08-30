@@ -77,6 +77,7 @@ function qruqsp_weather_main() {
     this.station.refreshTimer = null;
     this.station.sections = {
         'sensors':{'label':'Sensors', 'type':'simplegrid', 'compact_split_at':3, 'num_cols':7, 'aside':'full',
+            'compact_hide_empty':'yes',
             'headerValues':['Name', '', 'Last Updated', 'Temp', 'Humidity', 'Pressure', 'Wind', 'Rain'],
             'headerClasses':['', '', '', 'aligncenter', 'aligncenter', 'aligncenter', 'aligncenter', 'aligncenter'],
             'cellClasses':['', '', 'multiline', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
@@ -305,7 +306,7 @@ function qruqsp_weather_main() {
             }
             p.refresh();
             p.show(cb);
-            p.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 30000);
+//            p.refreshTimer = setTimeout('M.qruqsp_weather_main.station.autoUpdate();', 30000);
         });
     }
     this.station.beacon = function() {
@@ -848,6 +849,7 @@ function qruqsp_weather_main() {
         'general':{'label':'', 'aside':'yes', 'fields':{
             'station_id':{'label':'Station', 'required':'yes', 'type':'select', 'options':{}, 'complex_options':{'value':'id', 'name':'name'}},
             'name':{'label':'Name', 'required':'yes', 'type':'text'},
+            'sequence':{'label':'Order', 'type':'text', 'size':'small'},
 //            'flags':{'label':'Options', 'type':'text'},
 //            'fields':{'label':'Fields', 'type':'text'},
 //            'rain_mm_offset':{'label':'Rain Offset', 'type':'text'},

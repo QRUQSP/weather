@@ -63,6 +63,7 @@ function qruqsp_weather_sensorGet($ciniki) {
             'object'=>'',
             'object_id'=>'',
             'name'=>'',
+            'sequence'=>'1',
             'flags'=>'0',
             'fields'=>'0',
             'rain_mm_offset'=>'0',
@@ -79,6 +80,7 @@ function qruqsp_weather_sensorGet($ciniki) {
             . "qruqsp_weather_sensors.object, "
             . "qruqsp_weather_sensors.object_id, "
             . "qruqsp_weather_sensors.name, "
+            . "qruqsp_weather_sensors.sequence, "
             . "qruqsp_weather_sensors.flags, "
             . "qruqsp_weather_sensors.fields, "
             . "qruqsp_weather_sensors.rain_mm_offset, "
@@ -90,7 +92,7 @@ function qruqsp_weather_sensorGet($ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'qruqsp.weather', array(
             array('container'=>'sensors', 'fname'=>'id', 
-                'fields'=>array('station_id', 'object', 'object_id', 'name', 'flags', 'fields', 'rain_mm_offset', 'rain_mm_last'),
+                'fields'=>array('station_id', 'object', 'object_id', 'name', 'sequence', 'flags', 'fields', 'rain_mm_offset', 'rain_mm_last'),
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {

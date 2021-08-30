@@ -1,0 +1,6 @@
+#
+# Alter table to add sequence
+#
+ALTER TABLE qruqsp_weather_sensors ADD COLUMN sequence tinyint not null AFTER name;
+UPDATE qruqsp_weather_sensors SET sequence = 1;
+ALTER TABLE qruqsp_weather_sensors COMMENT='v1.02';
